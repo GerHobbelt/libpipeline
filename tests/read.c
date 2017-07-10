@@ -33,7 +33,7 @@
 
 #include "common.h"
 
-const char *program_name = "reading_long_line";
+const char *program_name = "read";
 
 /* Must be 8194 or bigger */
 #define RANDOM_STR_LEN 9000
