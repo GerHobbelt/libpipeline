@@ -40,7 +40,7 @@ libpipeline_la_LIBADD = ../gnulib/lib/libgnu.la $(LTLIBOBJS)
 libpipeline_la_LDFLAGS = \
 	-export-symbols-regex '^(pipecmd|pipeline)_' \
 	-no-undefined \
-	-version-info 5:1:4
+	-version-info 5:2:4
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpipeline.pc
