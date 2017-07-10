@@ -2214,6 +2214,7 @@ static const char *get_line (pipeline *p, size_t *outlen)
 	const size_t block = 4096;
 	const char *buffer = NULL, *end = NULL;
 	int i;
+	size_t previous_len = 0;
 
 	if (p->line_cache) {
 		free (p->line_cache);
@@ -2224,18 +2225,21 @@ static const char *get_line (pipeline *p, size_t *outlen)
 		*outlen = 0;
 
 	for (i = 0; ; ++i) {
-		size_t plen = block * (i + 1);
+		size_t len = block * (i + 1);
 
-		buffer = get_block (p, &plen, 1);
-		if (!buffer || plen == 0)
+		buffer = get_block (p, &len, 1);
+		if (!buffer || len == 0)
 			return NULL;
 
-		end = memchr (buffer + block * i, '\n', plen - block * i);
-		if (!end && plen < block * (i + 1))
+		if (len == previous_len)
 			/* end of file, no newline found */
-			end = buffer + plen - 1;
+			end = buffer + len - 1;
+		else
+			end = memchr (buffer + previous_len, '\n',
+				      len - previous_len);
 		if (end)
 			break;
+		previous_len = len;
 	}
 
 	if (end) {

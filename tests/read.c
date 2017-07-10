@@ -19,16 +19,16 @@
  * USA.
  */
 
-/*
- * Unit test for bug: https://bugzilla.redhat.com/show_bug.cgi?id=876108
- */
-
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
 
-#include <string.h>
+#include <sys/select.h>
 #include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include "xalloc.h"
 #include "xvasprintf.h"
 
 #include "common.h"
@@ -38,7 +38,8 @@ const char *program_name = "reading_long_line";
 /* Must be 8194 or bigger */
 #define RANDOM_STR_LEN 9000
 
-START_TEST (test_reading_longline)
+/* Unit test for bug: https://bugzilla.redhat.com/show_bug.cgi?id=876108 */
+START_TEST (test_read_long_line)
 {
 	/* Generate long random string */
 	static const char *alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -111,14 +112,49 @@ START_TEST (test_reading_longline)
 }
 END_TEST
 
-Suite *reading_long_line_suite (void)
+/* Write the first character of a string quickly, followed by the rest of it
+ * a little later.
+ */
+static void slow_line_helper (void *data)
 {
-	Suite *s = suite_create ("Reading long line");
+	const char *s = data;
+	struct timeval timeout;
 
-	TEST_CASE_WITH_FIXTURE (s, reading, longline,
-		temp_dir_setup, temp_dir_teardown);
+	setbuf (stdout, NULL);
+	putchar (s[0]);
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 100000;
+	select (0, NULL, NULL, NULL, &timeout);
+	fputs (s + 1, stdout);
+}
+
+START_TEST (test_read_readline_slow)
+{
+	pipeline *p;
+	pipecmd *cmd;
+	const char *line;
+
+	p = pipeline_new ();
+	cmd = pipecmd_new_function ("slow_line_helper", slow_line_helper,
+				    free, xstrdup ("a line\nsome more"));
+	pipeline_command (p, cmd);
+	pipeline_want_out (p, -1);
+	pipeline_start (p);
+	line = pipeline_readline (p);
+	fail_unless (!strcmp (line, "a line\n"));
+	pipeline_free (p);
+}
+END_TEST
+
+Suite *read_suite (void)
+{
+	Suite *s = suite_create ("Read");
+
+	TEST_CASE_WITH_FIXTURE (s, read, long_line,
+				temp_dir_setup, temp_dir_teardown);
+	TEST_CASE (s, read, readline_slow);
 
 	return s;
 }
 
-MAIN (reading_long_line)
+MAIN (read)
