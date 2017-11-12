@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-## Copyright (C) 2010 Colin Watson.
+## Copyright (C) 2010-2017 Colin Watson.
 ##
 ## This file is part of libpipeline.
 ##
@@ -44,6 +44,7 @@ FUNCTIONS = \
 	pipecmd_setenv \
 	pipecmd_unsetenv \
 	pipecmd_clearenv \
+	pipecmd_pre_exec \
 	pipecmd_sequence_command \
 	pipecmd_dump \
 	pipecmd_tostring \

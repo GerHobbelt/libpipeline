@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001, 2002, 2005, 2007, 2009, 2010 Colin Watson.
+ * Copyright (C) 2001-2017 Colin Watson.
  *
  * This file is part of libpipeline.
  *
@@ -61,6 +61,9 @@ struct pipecmd {
 	int nenv;
 	int env_max;		/* size of allocated array */
 	struct pipecmd_env *env;
+	pipecmd_function_type *pre_exec_func;
+	pipecmd_function_type *pre_exec_free_func;
+	void *pre_exec_data;
 	union {
 		struct pipecmd_process {
 			int argc;

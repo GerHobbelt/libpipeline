@@ -1,6 +1,6 @@
 /* Copyright (C) 1989, 1990, 1991, 1992, 2000, 2002
  * Free Software Foundation, Inc.
- * Copyright (C) 2003, 2004, 2005, 2007, 2008 Colin Watson.
+ * Copyright (C) 2003-2017 Colin Watson.
  *   Written for groff by James Clark (jjc@jclark.com)
  *   Adapted for man-db by Colin Watson.
  *
@@ -196,6 +196,22 @@ void pipecmd_unsetenv (pipecmd *cmd, const char *name);
  */
 void pipecmd_clearenv (pipecmd *cmd);
 
+/* Install a pre-exec handler.  This will be run immediately before
+ * executing the command's payload (process or function).  Pass NULL to
+ * clear any existing pre-exec handler.  The data argument is passed as the
+ * function's only argument, and will be freed before returning using
+ * free_func (if non-NULL).
+ *
+ * This is similar to pipeline_install_post_fork, except that is specific to
+ * a single command rather than installing a global handler, and it runs
+ * slightly later (immediately before exec rather than immediately after
+ * fork).
+ */
+void pipecmd_pre_exec (pipecmd *cmd,
+		       pipecmd_function_type *func,
+		       pipecmd_function_free_type *free_func,
+		       void *data);
+
 /* Add a command to a sequence. */
 void pipecmd_sequence_command (pipecmd *cmd, pipecmd *child);
 
@@ -358,6 +374,9 @@ typedef void pipeline_post_fork_fn (void);
  * immediately after it is forked.  For instance, this may be used for
  * cleaning up application-specific signal handlers.  Pass NULL to clear any
  * existing post-fork handler.
+ *
+ * See pipecmd_pre_exec for a similar facility limited to a single command
+ * rather than global to the calling process.
  */
 void pipeline_install_post_fork (pipeline_post_fork_fn *fn);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Colin Watson.
+ * Copyright (C) 2010-2017 Colin Watson.
  *
  * This file is part of libpipeline.
  *
@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -296,6 +297,24 @@ START_TEST (test_basic_fchdir)
 }
 END_TEST
 
+/* This is of course better done using pipecmd_setenv, but setting an
+ * environment variable makes for an easy test.
+ */
+static void pre_exec (void *data PIPELINE_ATTR_UNUSED)
+{
+	setenv ("TEST1", "10", 1);
+}
+
+START_TEST (test_basic_pre_exec)
+{
+	pipeline *p;
+
+	p = pipeline_new_command_args (SHELL, "-c", "exit $TEST1", NULL);
+	pipecmd_pre_exec (pipeline_get_command (p, 0), pre_exec, NULL, NULL);
+	fail_unless (pipeline_run (p) == 10, "TEST1 not set properly");
+}
+END_TEST
+
 START_TEST (test_basic_sequence)
 {
 	pipeline *p;
@@ -330,6 +349,7 @@ Suite *basic_suite (void)
 	TEST_CASE (s, basic, setenv);
 	TEST_CASE (s, basic, unsetenv);
 	TEST_CASE (s, basic, clearenv);
+	TEST_CASE (s, basic, pre_exec);
 	TEST_CASE_WITH_FIXTURE (s, basic, chdir,
 				temp_dir_setup, temp_dir_teardown);
 	TEST_CASE_WITH_FIXTURE (s, basic, fchdir,

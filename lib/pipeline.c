@@ -1,6 +1,6 @@
 /* Copyright (C) 1989, 1990, 1991, 1992, 2000, 2001, 2002, 2003
  * Free Software Foundation, Inc.
- * Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 Colin Watson.
+ * Copyright (C) 2003-2017 Colin Watson.
  *   Written for groff by James Clark (jjc@jclark.com)
  *   Heavily adapted and extended for man-db by Colin Watson.
  *
@@ -109,6 +109,10 @@ pipecmd *pipecmd_new (const char *name)
 	cmd->nenv = 0;
 	cmd->env_max = 4;
 	cmd->env = xnmalloc (cmd->env_max, sizeof *cmd->env);
+
+	cmd->pre_exec_func = NULL;
+	cmd->pre_exec_free_func = NULL;
+	cmd->pre_exec_data = NULL;
 
 	cmdp = &cmd->u.process;
 
@@ -306,6 +310,10 @@ pipecmd *pipecmd_new_function (const char *name,
 	cmd->env_max = 4;
 	cmd->env = xnmalloc (cmd->env_max, sizeof *cmd->env);
 
+	cmd->pre_exec_func = NULL;
+	cmd->pre_exec_free_func = NULL;
+	cmd->pre_exec_data = NULL;
+
 	cmdf = &cmd->u.function;
 
 	cmdf->func = func;
@@ -331,6 +339,10 @@ pipecmd *pipecmd_new_sequencev (const char *name, va_list cmdv)
 	cmd->nenv = 0;
 	cmd->env_max = 4;
 	cmd->env = xnmalloc (cmd->env_max, sizeof *cmd->env);
+
+	cmd->pre_exec_func = NULL;
+	cmd->pre_exec_free_func = NULL;
+	cmd->pre_exec_data = NULL;
 
 	cmds = &cmd->u.sequence;
 
@@ -395,6 +407,10 @@ pipecmd *pipecmd_dup (pipecmd *cmd)
 	newcmd->env_max = cmd->env_max;
 	assert (newcmd->nenv <= newcmd->env_max);
 	newcmd->env = xmalloc (newcmd->env_max * sizeof *newcmd->env);
+
+	newcmd->pre_exec_func = cmd->pre_exec_func;
+	newcmd->pre_exec_free_func = cmd->pre_exec_free_func;
+	newcmd->pre_exec_data = cmd->pre_exec_data;
 
 	for (i = 0; i < cmd->nenv; ++i) {
 		newcmd->env[i].name =
@@ -589,6 +605,16 @@ void pipecmd_clearenv (pipecmd *cmd)
 	++cmd->nenv;
 }
 
+void pipecmd_pre_exec (pipecmd *cmd,
+		       pipecmd_function_type *func,
+		       pipecmd_function_free_type *free_func,
+		       void *data)
+{
+	cmd->pre_exec_func = func;
+	cmd->pre_exec_free_func = free_func;
+	cmd->pre_exec_data = data;
+}
+
 void pipecmd_sequence_command (pipecmd *cmd, pipecmd *child)
 {
 	struct pipecmd_sequence *cmds;
@@ -772,6 +798,8 @@ void pipecmd_exec (pipecmd *cmd)
 	switch (cmd->tag) {
 		case PIPECMD_PROCESS: {
 			struct pipecmd_process *cmdp = &cmd->u.process;
+			if (cmd->pre_exec_func)
+				cmd->pre_exec_func (cmd->pre_exec_data);
 			execvp (cmd->name, cmdp->argv);
 			break;
 		}
@@ -782,10 +810,14 @@ void pipecmd_exec (pipecmd *cmd)
 		 */
 		case PIPECMD_FUNCTION: {
 			struct pipecmd_function *cmdf = &cmd->u.function;
-			(*cmdf->func) (cmdf->data);
+			if (cmd->pre_exec_func)
+				cmd->pre_exec_func (cmd->pre_exec_data);
+			cmdf->func (cmdf->data);
 			/* pacify valgrind et al */
 			if (cmdf->free_func)
-				(*cmdf->free_func) (cmdf->data);
+				cmdf->free_func (cmdf->data);
+			if (cmd->pre_exec_free_func)
+				cmd->pre_exec_free_func (cmd->pre_exec_data);
 			exit (0);
 		}
 

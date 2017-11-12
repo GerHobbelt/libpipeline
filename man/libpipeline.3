@@ -1,4 +1,4 @@
-.\" Copyright (C) 2010 Colin Watson.
+.\" Copyright (C) 2010-2017 Colin Watson.
 .\"
 .\" This file is part of libpipeline.
 .\"
@@ -242,6 +242,26 @@ environment variable set.)
 Beware that this may cause unexpected failures, for example if some of the
 contents of the environment are necessary to execute programs at all (say,
 .Li PATH ) .
+.Pp
+.It Xo Ft void
+.Fo pipecmd_pre_exec
+.Fa "pipecmd *cmd"
+.Fa "pipecmd_function_type *func"
+.Fa "pipecmd_function_free_type *free_func"
+.Fa "void *data"
+.Fc
+.Xc
+.Pp
+Install a pre-exec handler.
+This will be run immediately before executing the command's payload (process
+or function).
+Pass NULL to clear any existing pre-exec handler.
+The data argument is passed as the function's only argument, and will be
+freed before returning using free_func (if non-NULL).
+.Pp
+This is similar to pipeline_install_post_fork, except that is specific to a
+single command rather than installing a global handler, and it runs slightly
+later (immediately before exec rather than immediately after fork).
 .Pp
 .It Ft void Fn pipecmd_sequence_command "pipecmd *cmd" "pipecmd *child"
 .Pp
@@ -513,6 +533,9 @@ handlers.
 Pass
 .Li NULL
 to clear any existing post-fork handler.
+.Pp
+See pipecmd_pre_exec for a similar facility limited to a single command
+rather than global to the calling process.
 .Pp
 .It Ft void Fn pipeline_start "pipeline *p"
 .Pp
