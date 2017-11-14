@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-# Copyright (C) 2010, 2011, 2012, 2013 Colin Watson.
+# Copyright (C) 2010-2017 Colin Watson.
 #
 # This file is part of libpipeline.
 #
@@ -22,7 +22,7 @@ dnl Process this file with autoconf to produce a configure script.
 m4_pattern_forbid([^PIPELINE_])
 
 # Initialise and check we're in the correct directory.
-AC_INIT([libpipeline], [1.4.2], [cjwatson@debian.org])
+AC_INIT([libpipeline], [1.5.0], [cjwatson@debian.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([1.10 -Wall -Werror foreign])
 AM_MAINTAINER_MODE

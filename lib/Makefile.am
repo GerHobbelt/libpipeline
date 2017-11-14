@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-## Copyright (C) 2010 Colin Watson.
+## Copyright (C) 2010-2017 Colin Watson.
 ##
 ## This file is part of libpipeline.
 ##
@@ -40,7 +40,7 @@ libpipeline_la_LIBADD = ../gnulib/lib/libgnu.la $(LTLIBOBJS)
 libpipeline_la_LDFLAGS = \
 	-export-symbols-regex '^(pipecmd|pipeline)_' \
 	-no-undefined \
-	-version-info 5:2:4
+	-version-info 6:0:5
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libpipeline.pc
