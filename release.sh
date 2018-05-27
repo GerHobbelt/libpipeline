@@ -2,7 +2,7 @@
 set -e
 
 # Build automatically generated files
-./autogen.sh
+./bootstrap
 
 # Basic configure to get 'make distcheck'
 ./configure

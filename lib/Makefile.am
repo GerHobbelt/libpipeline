@@ -24,8 +24,8 @@ lib_LTLIBRARIES = libpipeline.la
 AM_CFLAGS = $(WARN_CFLAGS)
 
 libpipeline_la_CPPFLAGS = \
-	-I$(top_srcdir)/gnulib/lib \
-	-I$(top_builddir)/gnulib/lib
+	-I$(top_srcdir)/gl/lib \
+	-I$(top_builddir)/gl/lib
 
 libpipeline_la_SOURCES = \
 	appendstr.c \
@@ -35,7 +35,7 @@ libpipeline_la_SOURCES = \
 
 include_HEADERS = pipeline.h
 
-libpipeline_la_LIBADD = ../gnulib/lib/libgnu.la $(LTLIBOBJS)
+libpipeline_la_LIBADD = ../gl/lib/libgnu.la $(LTLIBOBJS)
 
 libpipeline_la_LDFLAGS = \
 	-export-symbols-regex '^(pipecmd|pipeline)_' \

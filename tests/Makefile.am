@@ -31,11 +31,11 @@ TESTS = \
 	redirect
 check_PROGRAMS = $(TESTS)
 
-LIBS = ../gnulib/lib/libgnu.la $(LTLIBOBJS) $(top_builddir)/lib/libpipeline.la
+LIBS = ../gl/lib/libgnu.la $(LTLIBOBJS) $(top_builddir)/lib/libpipeline.la
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/gnulib/lib \
-	-I$(top_builddir)/gnulib/lib \
+	-I$(top_srcdir)/gl/lib \
+	-I$(top_builddir)/gl/lib \
 	-I$(top_srcdir)/lib
 AM_CFLAGS = $(WARN_CFLAGS) @CHECK_CFLAGS@
 

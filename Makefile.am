@@ -19,7 +19,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 ## USA
 
-SUBDIRS = gnulib/lib lib man
+SUBDIRS = gl/lib lib man
 if RUN_TESTS
 SUBDIRS += tests
 endif
@@ -29,22 +29,21 @@ dist_noinst_DATA = NEWS
 EXTRA_DIST = \
 	.gitignore \
 	ChangeLog-2013 \
-	autogen.sh \
-	gnulib/m4/gnulib-cache.m4 \
-	gnulib/m4/gnulib-tool.m4 \
+	bootstrap \
+	bootstrap.conf \
 	release.sh
 
 # These macro files are imported by gnulib-tool, but at present not used. We
 # include them in the distribution anyway for maximum consistency.
 EXTRA_DIST += \
-	gnulib/m4/math_h.m4
+	gl/m4/math_h.m4
 
 # Note that autopoint installs into the first directory here. Yes, this
-# means that it installs into gnulib/m4, so we always run gnulib-tool after
+# means that it installs into gl/m4, so we always run gnulib-tool after
 # autopoint, at least for now. See
 # http://lists.gnu.org/archive/html/bug-gnulib/2009-03/msg00154.html and
 # thread.
-ACLOCAL_AMFLAGS = -I gnulib/m4 -I m4
+ACLOCAL_AMFLAGS = -I gl/m4 -I m4
 
 dist-hook: gen-ChangeLog
 

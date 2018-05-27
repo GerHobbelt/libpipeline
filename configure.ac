@@ -97,7 +97,7 @@ PIPELINE_ECHO_VAR(LDFLAGS)
 PIPELINE_ECHO_VAR(LIBS)
 
 AC_CONFIG_FILES([Makefile
-	gnulib/lib/Makefile
+	gl/lib/Makefile
 	lib/Makefile
 	lib/libpipeline.pc
 	man/Makefile
