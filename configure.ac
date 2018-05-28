@@ -30,8 +30,6 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_PREREQ([2.59])
 AC_CONFIG_SRCDIR([lib/pipeline.c])
 AC_GNU_SOURCE
-m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
-LT_INIT([disable-static])
 
 AC_CONFIG_HEADER([config.h])
 AC_CANONICAL_HOST
@@ -53,6 +51,8 @@ then
 	gl_WARN_ADD([-Wno-missing-field-initializers])
 fi
 AC_PROG_LN_S
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+LT_INIT([disable-static])
 AC_DEFINE_UNQUOTED([SHELL], ["$SHELL"], [A POSIX shell interpreter.])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [run_tests=yes], [run_tests=no])
 AM_CONDITIONAL([RUN_TESTS], [test "x$run_tests" = xyes])
