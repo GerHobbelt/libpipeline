@@ -48,7 +48,7 @@ START_TEST (test_exec_process)
 		if (i < 2) {
 			char *arg;
 
-			cmd = pipecmd_new_args (SHELL, "-c", NULL);
+			cmd = pipecmd_new_args (SHELL, "-c", (void *) 0);
 			arg = xasprintf ("exit %d", i);
 			pipecmd_arg (cmd, arg);
 			free (arg);

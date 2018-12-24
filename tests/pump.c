@@ -40,7 +40,7 @@ const char *program_name = "pump";
 static void fail_unless_files_equal (const char *left, const char *right)
 {
 	pipeline *diff = pipeline_new_command_args
-		("diff", "-u", left, right, NULL);
+		("diff", "-u", left, right, (void *) 0);
 	int ret = pipeline_run (diff);
 	fail_unless (ret == 0);
 }
@@ -51,7 +51,7 @@ START_TEST (test_pump_connect_attaches_correctly)
 	pipeline *two = pipeline_new ();
 	pipeline *three = pipeline_new ();
 
-	pipeline_connect (one, two, three, NULL);
+	pipeline_connect (one, two, three, (void *) 0);
 	fail_unless (one->redirect_out == REDIRECT_FD);
 	fail_unless (one->want_out < 0);
 	fail_unless (one->want_outfile == NULL);
@@ -91,15 +91,15 @@ START_TEST (test_pump_tee)
 	pipeline_command (source,
 			  pipecmd_new_function ("source", tee_source, 
 						NULL, NULL));
-	sink_process = pipeline_new_command_args ("cat", NULL);
+	sink_process = pipeline_new_command_args ("cat", (void *) 0);
 	process_outfile = xasprintf ("%s/process", temp_dir);
 	pipeline_want_outfile (sink_process, process_outfile);
 	sink_function = pipeline_new ();
 	pipeline_command (sink_function, pipecmd_new_passthrough ());
 	function_outfile = xasprintf ("%s/function", temp_dir);
 	pipeline_want_outfile (sink_function, function_outfile);
-	pipeline_connect (source, sink_process, sink_function, NULL);
-	pipeline_pump (source, sink_process, sink_function, NULL);
+	pipeline_connect (source, sink_process, sink_function, (void *) 0);
+	pipeline_pump (source, sink_process, sink_function, (void *) 0);
 	fail_unless (pipeline_wait (source) == 0, "source did not return 0");
 	fail_unless (pipeline_wait (sink_process) == 0,
 		     "process sink did not return 0");

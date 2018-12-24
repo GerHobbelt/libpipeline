@@ -47,7 +47,7 @@ START_TEST (test_inspect_command)
 	free (str);
 	pipecmd_free (cmd);
 
-	cmd = pipecmd_new_args ("foo", "bar", "baz quux", NULL);
+	cmd = pipecmd_new_args ("foo", "bar", "baz quux", (void *) 0);
 	str = pipecmd_tostring (cmd);
 	/* TODO: not ideal representation of commands with metacharacters */
 	fail_unless (!strcmp (str, "foo bar baz quux"));
@@ -62,8 +62,8 @@ START_TEST (test_inspect_pipeline)
 	char *str;
 
 	p = pipeline_new ();
-	pipeline_command_args (p, "foo", "bar", NULL);
-	pipeline_command_args (p, "grep", "baz", "quux", NULL);
+	pipeline_command_args (p, "foo", "bar", (void *) 0);
+	pipeline_command_args (p, "grep", "baz", "quux", (void *) 0);
 	fail_unless (pipeline_get_ncommands (p) == 2);
 	pipecmd_setenv (pipeline_get_command (p, 1), "KEY", "value");
 	str = pipeline_tostring (p);

@@ -53,7 +53,7 @@ START_TEST (test_redirect_files)
 	fprintf (fh, "test data\n");
 	fflush (fh);
 
-	p = pipeline_new_command_args ("sed", "-e", "s/$/ out/", NULL);
+	p = pipeline_new_command_args ("sed", "-e", "s/$/ out/", (void *) 0);
 	pipeline_want_infile (p, template);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
@@ -76,7 +76,7 @@ START_TEST (test_redirect_outfile)
 	FILE *fh;
 	char line[5];
 
-	p = pipeline_new_command_args ("echo", "test", NULL);
+	p = pipeline_new_command_args ("echo", "test", (void *) 0);
 	outfile = xasprintf ("%s/test", temp_dir);
 	pipeline_want_outfile (p, outfile);
 	fail_unless (pipeline_run (p) == 0);
