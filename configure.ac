@@ -24,10 +24,10 @@ m4_pattern_forbid([^PIPELINE_])
 # Initialise and check we're in the correct directory.
 AC_INIT([libpipeline], [1.5.0], [cjwatson@debian.org])
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([1.10 -Wall -Werror foreign])
+AM_INIT_AUTOMAKE([1.11 -Wall -Werror foreign])
 AM_MAINTAINER_MODE
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
-AC_PREREQ([2.59])
+AM_SILENT_RULES([yes])
+AC_PREREQ([2.63])
 AC_CONFIG_SRCDIR([lib/pipeline.c])
 AC_GNU_SOURCE
 PIPELINE_TAR_SORT_NAME
@@ -52,7 +52,7 @@ then
 	gl_WARN_ADD([-Wno-missing-field-initializers])
 fi
 AC_PROG_LN_S
-m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+AM_PROG_AR
 LT_INIT([disable-static])
 AC_DEFINE_UNQUOTED([SHELL], ["$SHELL"], [A POSIX shell interpreter.])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [run_tests=yes], [run_tests=no])
