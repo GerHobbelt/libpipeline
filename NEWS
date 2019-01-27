@@ -1,5 +1,5 @@
-libpipeline 1.5.1
-=================
+libpipeline 1.5.1 (27 January 2019)
+===================================
 
 Building libpipeline now requires Autoconf >= 2.63 and Automake >= 1.11.2.
 
