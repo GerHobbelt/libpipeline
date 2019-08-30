@@ -535,7 +535,7 @@ void pipecmd_argstr (pipecmd *cmd, const char *argstr)
 	}
 }
 
-int pipecmd_get_nargs (pipecmd *cmd)
+int _GL_ATTRIBUTE_PURE pipecmd_get_nargs (pipecmd *cmd)
 {
 	struct pipecmd_process *cmdp;
 
@@ -1153,12 +1153,12 @@ void pipeline_commands (pipeline *p, ...)
 	va_end (cmdv);
 }
 
-int pipeline_get_ncommands (pipeline *p)
+int _GL_ATTRIBUTE_PURE pipeline_get_ncommands (pipeline *p)
 {
 	return p->ncommands;
 }
 
-pipecmd *pipeline_get_command (pipeline *p, int n)
+pipecmd * _GL_ATTRIBUTE_PURE pipeline_get_command (pipeline *p, int n)
 {
 	if (n < 0 || n >= p->ncommands)
 		return NULL;
@@ -1175,7 +1175,7 @@ pipecmd *pipeline_set_command (pipeline *p, int n, pipecmd *cmd)
 	return prev;
 }
 
-pid_t pipeline_get_pid (pipeline *p, int n)
+pid_t _GL_ATTRIBUTE_PURE pipeline_get_pid (pipeline *p, int n)
 {
 	assert (p->pids);	/* pipeline started */
 	if (n < 0 || n >= p->ncommands)
@@ -2223,7 +2223,7 @@ const char *pipeline_peek (pipeline *p, size_t *len)
 	return get_block (p, len, 1);
 }
 
-size_t pipeline_peek_size (pipeline *p)
+size_t _GL_ATTRIBUTE_PURE pipeline_peek_size (pipeline *p)
 {
 	if (!p->buffer)
 		return 0;
