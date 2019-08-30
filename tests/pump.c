@@ -115,7 +115,7 @@ START_TEST (test_pump_tee)
 }
 END_TEST
 
-Suite *pump_suite (void)
+static Suite *pump_suite (void)
 {
 	Suite *s = suite_create ("Pump");
 

@@ -90,7 +90,7 @@ START_TEST (test_redirect_outfile)
 }
 END_TEST
 
-Suite *redirect_suite (void)
+static Suite *redirect_suite (void)
 {
 	Suite *s = suite_create ("Redirect");
 

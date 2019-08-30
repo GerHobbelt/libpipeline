@@ -338,7 +338,7 @@ START_TEST (test_basic_sequence)
 }
 END_TEST
 
-Suite *basic_suite (void)
+static Suite *basic_suite (void)
 {
 	Suite *s = suite_create ("Basic");
 

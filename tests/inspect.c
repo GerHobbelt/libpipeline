@@ -126,7 +126,7 @@ START_TEST (test_inspect_pid)
 }
 END_TEST
 
-Suite *inspect_suite (void)
+static Suite *inspect_suite (void)
 {
 	Suite *s = suite_create ("Inspect");
 

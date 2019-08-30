@@ -123,7 +123,7 @@ START_TEST (test_exec_function)
 }
 END_TEST
 
-Suite *exec_suite (void)
+static Suite *exec_suite (void)
 {
 	Suite *s = suite_create ("Exec");
 

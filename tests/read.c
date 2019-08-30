@@ -146,7 +146,7 @@ START_TEST (test_read_readline_slow)
 }
 END_TEST
 
-Suite *read_suite (void)
+static Suite *read_suite (void)
 {
 	Suite *s = suite_create ("Read");
 

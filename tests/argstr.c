@@ -72,7 +72,7 @@ START_TEST (test_argstr_exec)
 }
 END_TEST
 
-Suite *argstr_suite (void)
+static Suite *argstr_suite (void)
 {
 	Suite *s = suite_create ("Argstr");
 
