@@ -40,17 +40,17 @@ AC_PROG_CC
 gl_EARLY
 AC_PROG_CPP
 CFLAGS="$CFLAGS -Wall"
-if test "$GCC" = yes
-then
-	gl_WARN_ADD([-W])
-	gl_WARN_ADD([-Wpointer-arith])
-	gl_WARN_ADD([-Wwrite-strings])
-	gl_WARN_ADD([-Wstrict-prototypes])
-	gl_WARN_ADD([-Wshadow])
-	gl_WARN_ADD([-Wformat-security])
-	gl_WARN_ADD([-Wredundant-decls])
-	gl_WARN_ADD([-Wno-missing-field-initializers])
-fi
+# Enable all reasonable GCC warnings.
+gl_MANYWARN_ALL_GCC([warnings])
+nw=
+nw="$nw -Wsystem-headers"
+nw="$nw -Wmissing-field-initializers"
+nw="$nw -Winline"
+gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
+for w in $warnings; do
+	gl_WARN_ADD([$w])
+done
+gl_WARN_ADD([-Wno-missing-field-initializers])
 AC_PROG_LN_S
 AM_PROG_AR
 LT_INIT([disable-static])
