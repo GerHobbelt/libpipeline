@@ -50,6 +50,10 @@ extern "C" {
 #endif
 
 /* Does this compiler support marking variables as unused? */
+/* This is no longer used internally and isn't documented as part of
+ * libpipeline's public API, but is preserved just in case somebody used it
+ * anyway.
+ */
 #if PIPELINE_GNUC_PREREQ(2,4)
 #  define PIPELINE_ATTR_UNUSED __attribute__ ((__unused__))
 #else

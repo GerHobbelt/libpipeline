@@ -20,8 +20,7 @@
 	} while (0)
 
 #define MAIN(test) \
-	int main (int argc PIPELINE_ATTR_UNUSED, \
-		  char **argv PIPELINE_ATTR_UNUSED) \
+	int main (int argc _GL_UNUSED, char **argv _GL_UNUSED) \
 	{ \
 		int failed; \
 		Suite *s = test##_suite (); \

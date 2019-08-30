@@ -371,7 +371,7 @@ pipecmd *pipecmd_new_sequence (const char *name, ...)
 	return cmd;
 }
 
-static void passthrough (void *data PIPELINE_ATTR_UNUSED)
+static void passthrough (void *data _GL_UNUSED)
 {
 	for (;;) {
 		char buffer[4096];

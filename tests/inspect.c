@@ -73,7 +73,7 @@ START_TEST (test_inspect_pipeline)
 }
 END_TEST
 
-static void pid_helper (void *data PIPELINE_ATTR_UNUSED)
+static void pid_helper (void *data _GL_UNUSED)
 {
 	struct sigaction sa;
 

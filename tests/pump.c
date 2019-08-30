@@ -70,7 +70,7 @@ START_TEST (test_pump_connect_attaches_correctly)
 }
 END_TEST
 
-static void tee_source (void *data PIPELINE_ATTR_UNUSED)
+static void tee_source (void *data _GL_UNUSED)
 {
 	unsigned char buf[256];
 	int i;
