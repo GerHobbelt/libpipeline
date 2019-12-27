@@ -1,3 +1,9 @@
+libpipeline 1.5.2
+=================
+
+`pipecmd_exec' now calls `_exit' rather than `exit', to avoid bugs such as
+functions registered using `atexit' being called multiple times.
+
 libpipeline 1.5.1 (27 January 2019)
 ===================================
 

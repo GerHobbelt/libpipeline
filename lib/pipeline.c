@@ -820,7 +820,7 @@ void pipecmd_exec (pipecmd *cmd)
 				cmdf->free_func (cmdf->data);
 			if (cmd->pre_exec_free_func)
 				cmd->pre_exec_free_func (cmd->pre_exec_data);
-			exit (0);
+			_exit (0);
 		}
 
 		case PIPECMD_SEQUENCE: {
@@ -897,12 +897,12 @@ void pipecmd_exec (pipecmd *cmd)
 
 				if (WIFSIGNALED (status)) {
 					raise (WTERMSIG (status));
-					exit (1); /* just to make sure */
+					_exit (1); /* just to make sure */
 				} else if (status && WIFEXITED (status))
-					exit (WEXITSTATUS (status));
+					_exit (WEXITSTATUS (status));
 			}
 
-			exit (0);
+			_exit (0);
 		}
 	}
 
@@ -910,7 +910,7 @@ void pipecmd_exec (pipecmd *cmd)
 	/* Never called, but gcc doesn't realise that error with non-zero
 	 * status always exits.
 	 */
-	exit (EXEC_FAILED_EXIT_STATUS);
+	_exit (EXEC_FAILED_EXIT_STATUS);
 }
 
 void pipecmd_free (pipecmd *cmd)
