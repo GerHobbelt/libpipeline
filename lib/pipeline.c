@@ -820,6 +820,7 @@ void pipecmd_exec (pipecmd *cmd)
 				cmdf->free_func (cmdf->data);
 			if (cmd->pre_exec_free_func)
 				cmd->pre_exec_free_func (cmd->pre_exec_data);
+			fflush (NULL);
 			_exit (0);
 		}
 
