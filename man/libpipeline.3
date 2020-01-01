@@ -547,6 +547,9 @@ Calls
 .Li error (FATAL)
 on error.
 .Pp
+The standard file descriptors (0, 1, and 2) must be open before calling this
+function.
+.Pp
 .It Xo
 .Ft int Fn pipeline_wait_all "pipeline *p" "int **statuses" "int *n_statuses"
 .Xc
