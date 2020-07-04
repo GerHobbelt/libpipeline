@@ -375,8 +375,13 @@ static void passthrough (void *data _GL_UNUSED)
 {
 	for (;;) {
 		char buffer[4096];
-		int r = safe_read (STDIN_FILENO, buffer, 4096);
-		if (r <= 0)
+		size_t r = safe_read (STDIN_FILENO, buffer, 4096);
+		if (r == SAFE_READ_ERROR)
+			/* TODO: Function commands have no way to signal
+			 * errors.
+			 */
+			break;
+		if (r == 0)
 			break;
 		if (full_write (STDOUT_FILENO, buffer,
 				(size_t) r) < (size_t) r)
@@ -2043,7 +2048,7 @@ void pipeline_pump (pipeline *p, ...)
 		for (i = 0; i < argc; ++i) {
 			const char *block;
 			size_t peek_size;
-			ssize_t w;
+			size_t w;
 			size_t minpos;
 
 			if (!pieces[i]->source || pieces[i]->infd == -1)
@@ -2072,7 +2077,7 @@ void pipeline_pump (pipeline *p, ...)
 				w = safe_write (pieces[i]->infd,
 						block + pos[i],
 						peek_size - pos[i]);
-				if (w >= 0)
+				if (w != SAFE_WRITE_ERROR)
 					break;
 				if (errno == EAGAIN) {
 					w = 0;
@@ -2170,7 +2175,7 @@ static const char *get_block (pipeline *p, size_t *len, int peek)
 	size_t readstart = 0, retstart = 0;
 	size_t space = p->bufmax;
 	size_t toread = *len;
-	ssize_t r;
+	size_t r;
 
 	if (p->buffer && p->peek_offset) {
 		if (p->peek_offset >= toread) {
@@ -2204,7 +2209,7 @@ static const char *get_block (pipeline *p, size_t *len, int peek)
 
 	assert (p->outfd != -1);
 	r = safe_read (p->outfd, p->buffer + readstart, toread);
-	if (r == -1)
+	if (r == SAFE_READ_ERROR)
 		return NULL;
 	p->buflen = readstart + r;
 	if (peek)

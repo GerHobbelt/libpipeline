@@ -1,3 +1,8 @@
+libpipeline 1.5.3
+=================
+
+Fix implementation-defined behaviour while handling read/write errors.
+
 libpipeline 1.5.2 (1 January 2020)
 ==================================
 
