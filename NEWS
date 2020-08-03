@@ -3,6 +3,8 @@ libpipeline 1.5.3
 
 Fix implementation-defined behaviour while handling read/write errors.
 
+Port tests to the modern Check API.
+
 libpipeline 1.5.2 (1 January 2020)
 ==================================
 

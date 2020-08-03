@@ -43,14 +43,14 @@ START_TEST (test_inspect_command)
 
 	cmd = pipecmd_new ("foo");
 	str = pipecmd_tostring (cmd);
-	fail_unless (!strcmp (str, "foo"));
+	ck_assert_str_eq (str, "foo");
 	free (str);
 	pipecmd_free (cmd);
 
 	cmd = pipecmd_new_args ("foo", "bar", "baz quux", (void *) 0);
 	str = pipecmd_tostring (cmd);
 	/* TODO: not ideal representation of commands with metacharacters */
-	fail_unless (!strcmp (str, "foo bar baz quux"));
+	ck_assert_str_eq (str, "foo bar baz quux");
 	free (str);
 	pipecmd_free (cmd);
 }
@@ -64,10 +64,10 @@ START_TEST (test_inspect_pipeline)
 	p = pipeline_new ();
 	pipeline_command_args (p, "foo", "bar", (void *) 0);
 	pipeline_command_args (p, "grep", "baz", "quux", (void *) 0);
-	fail_unless (pipeline_get_ncommands (p) == 2);
+	ck_assert_int_eq (pipeline_get_ncommands (p), 2);
 	pipecmd_setenv (pipeline_get_command (p, 1), "KEY", "value");
 	str = pipeline_tostring (p);
-	fail_unless (!strcmp (str, "foo bar | KEY=value grep baz quux"));
+	ck_assert_str_eq (str, "foo bar | KEY=value grep baz quux");
 	free (str);
 	pipeline_free (p);
 }
@@ -103,9 +103,9 @@ START_TEST (test_inspect_pid)
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
 	line = pipeline_readline (p);
-	fail_unless (line != NULL);
+	ck_assert_ptr_ne (line, NULL);
 	pid = (pid_t) atol (line);
-	fail_unless (pid == pipeline_get_pid (p, 0), "pids match");
+	ck_assert_msg (pid == pipeline_get_pid (p, 0), "pids match");
 	/* Note that this test may hang if pipeline_get_pid does not work.
 	 * We might be able to fix this by calling setsid at the start of
 	 * the test and then killing the process group, but I'm not sure if
@@ -119,8 +119,8 @@ START_TEST (test_inspect_pid)
 		kill (pid, SIGTERM);
 		status = pipeline_wait (p);
 
-		fail_unless (status == 128 + SIGTERM,
-			     "pid_helper did not indicate SIGTERM");
+		ck_assert_msg (status == 128 + SIGTERM,
+			       "pid_helper did not indicate SIGTERM");
 	}
 	pipeline_free (p);
 }

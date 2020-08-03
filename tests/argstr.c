@@ -37,9 +37,9 @@ START_TEST (test_argstr_trivial)
 	pipecmd *cmd;
 
 	cmd = pipecmd_new_argstr ("/bin/simple");
-	fail_unless (!strcmp (cmd->name, "/bin/simple"));
-	fail_unless (cmd->u.process.argc == 1);
-	fail_unless (!strcmp (cmd->u.process.argv[0], "simple"));
+	ck_assert_str_eq (cmd->name, "/bin/simple");
+	ck_assert_int_eq (cmd->u.process.argc, 1);
+	ck_assert_str_eq (cmd->u.process.argv[0], "simple");
 	pipecmd_free (cmd);
 }
 END_TEST
@@ -50,11 +50,11 @@ START_TEST (test_argstr_torture)
 
 	cmd = pipecmd_new_argstr
 		("x' \\' \\$\\'\\\"\" \\'\\$\\\"\\\\ \" \\\"");
-	fail_unless (!strcmp (cmd->name, "x \\"));
-	fail_unless (cmd->u.process.argc == 3);
-	fail_unless (!strcmp (cmd->u.process.argv[0], "x \\"));
-	fail_unless (!strcmp (cmd->u.process.argv[1], "$'\" \\'$\"\\ "));
-	fail_unless (!strcmp (cmd->u.process.argv[2], "\""));
+	ck_assert_str_eq (cmd->name, "x \\");
+	ck_assert_int_eq (cmd->u.process.argc, 3);
+	ck_assert_str_eq (cmd->u.process.argv[0], "x \\");
+	ck_assert_str_eq (cmd->u.process.argv[1], "$'\" \\'$\"\\ ");
+	ck_assert_str_eq (cmd->u.process.argv[2], "\"");
 	pipecmd_free (cmd);
 }
 END_TEST
@@ -64,10 +64,10 @@ START_TEST (test_argstr_exec)
 	pipecmd *cmd;
 
 	cmd = pipecmd_new_argstr ("exec /bin/foo bar");
-	fail_unless (!strcmp (cmd->name, "/bin/foo"));
-	fail_unless (cmd->u.process.argc == 2);
-	fail_unless (!strcmp (cmd->u.process.argv[0], "foo"));
-	fail_unless (!strcmp (cmd->u.process.argv[1], "bar"));
+	ck_assert_str_eq (cmd->name, "/bin/foo");
+	ck_assert_int_eq (cmd->u.process.argc, 2);
+	ck_assert_str_eq (cmd->u.process.argv[0], "foo");
+	ck_assert_str_eq (cmd->u.process.argv[1], "bar");
 	pipecmd_free (cmd);
 }
 END_TEST

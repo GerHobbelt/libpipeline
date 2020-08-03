@@ -37,12 +37,11 @@
 
 const char *program_name = "pump";
 
-static void fail_unless_files_equal (const char *left, const char *right)
+static void assert_files_equal (const char *left, const char *right)
 {
 	pipeline *diff = pipeline_new_command_args
 		("diff", "-u", left, right, (void *) 0);
-	int ret = pipeline_run (diff);
-	fail_unless (ret == 0);
+	ck_assert_int_eq (pipeline_run (diff), 0);
 }
 
 START_TEST (test_pump_connect_attaches_correctly)
@@ -52,17 +51,17 @@ START_TEST (test_pump_connect_attaches_correctly)
 	pipeline *three = pipeline_new ();
 
 	pipeline_connect (one, two, three, (void *) 0);
-	fail_unless (one->redirect_out == REDIRECT_FD);
-	fail_unless (one->want_out < 0);
-	fail_unless (one->want_outfile == NULL);
-	fail_unless (two->source == one);
-	fail_unless (two->redirect_in == REDIRECT_FD);
-	fail_unless (two->want_in < 0);
-	fail_unless (two->want_infile == NULL);
-	fail_unless (three->source == one);
-	fail_unless (three->redirect_in == REDIRECT_FD);
-	fail_unless (three->want_in < 0);
-	fail_unless (three->want_infile == NULL);
+	ck_assert_int_eq (one->redirect_out, REDIRECT_FD);
+	ck_assert_int_le (one->want_out, 0);
+	ck_assert_ptr_eq (one->want_outfile, NULL);
+	ck_assert_ptr_eq (two->source, one);
+	ck_assert_int_eq (two->redirect_in, REDIRECT_FD);
+	ck_assert_int_le (two->want_in, 0);
+	ck_assert_ptr_eq (two->want_infile, NULL);
+	ck_assert_ptr_eq (three->source, one);
+	ck_assert_int_eq (three->redirect_in, REDIRECT_FD);
+	ck_assert_int_le (three->want_in, 0);
+	ck_assert_ptr_eq (three->want_infile, NULL);
 
 	pipeline_free (three);
 	pipeline_free (two);
@@ -100,12 +99,10 @@ START_TEST (test_pump_tee)
 	pipeline_want_outfile (sink_function, function_outfile);
 	pipeline_connect (source, sink_process, sink_function, (void *) 0);
 	pipeline_pump (source, sink_process, sink_function, (void *) 0);
-	fail_unless (pipeline_wait (source) == 0, "source did not return 0");
-	fail_unless (pipeline_wait (sink_process) == 0,
-		     "process sink did not return 0");
-	fail_unless (pipeline_wait (sink_function) == 0,
-		     "function sink did not return 0");
-	fail_unless_files_equal (process_outfile, function_outfile);
+	ck_assert_int_eq (pipeline_wait (source), 0);
+	ck_assert_int_eq (pipeline_wait (sink_process), 0);
+	ck_assert_int_eq (pipeline_wait (sink_function), 0);
+	assert_files_equal (process_outfile, function_outfile);
 
 	free (function_outfile);
 	free (process_outfile);

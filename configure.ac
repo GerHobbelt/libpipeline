@@ -55,7 +55,7 @@ AC_PROG_LN_S
 AM_PROG_AR
 LT_INIT([disable-static])
 AC_DEFINE_UNQUOTED([SHELL], ["$SHELL"], [A POSIX shell interpreter.])
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4], [run_tests=yes], [run_tests=no])
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.10], [run_tests=yes], [run_tests=no])
 AM_CONDITIONAL([RUN_TESTS], [test "x$run_tests" = xyes])
 
 # Check for various header files and associated libraries.

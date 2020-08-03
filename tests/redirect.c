@@ -42,7 +42,6 @@ START_TEST (test_redirect_files)
 	int fd;
 	FILE *fh;
 	pipeline *p;
-	const char *line;
 
 	fd = mkstemp (template);
 	if (fd < 0) {
@@ -57,9 +56,7 @@ START_TEST (test_redirect_files)
 	pipeline_want_infile (p, template);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
-	line = pipeline_readline (p);
-	fail_unless (line != NULL);
-	fail_unless (!strcmp (line, "test data out\n"));
+	ck_assert_str_eq (pipeline_readline (p), "test data out\n");
 
 	fclose (fh);
 	unlink (template);
@@ -79,11 +76,11 @@ START_TEST (test_redirect_outfile)
 	p = pipeline_new_command_args ("echo", "test", (void *) 0);
 	outfile = xasprintf ("%s/test", temp_dir);
 	pipeline_want_outfile (p, outfile);
-	fail_unless (pipeline_run (p) == 0);
+	ck_assert_int_eq (pipeline_run (p), 0);
 	fh = fopen (outfile, "r");
-	fail_unless (fh != NULL);
-	fail_unless (fgets (line, 5, fh) != NULL);
-	fail_unless (!strcmp (line, "test"));
+	ck_assert_ptr_ne (fh, NULL);
+	ck_assert_ptr_ne (fgets (line, 5, fh), NULL);
+	ck_assert_str_eq (line, "test");
 
 	fclose (fh);
 	free (outfile);

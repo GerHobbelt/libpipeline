@@ -72,11 +72,11 @@ START_TEST (test_exec_process)
 			return;
 		}
 
-		fail_unless (WIFEXITED (status));
+		ck_assert_int_ne (WIFEXITED (status), 0);
 		if (i < 2)
-			fail_unless (WEXITSTATUS (status) == i);
+			ck_assert_int_eq (WEXITSTATUS (status), i);
 		else
-			fail_if (WEXITSTATUS (status) == 0);
+			ck_assert_int_ne (WEXITSTATUS (status), 0);
 
 		pipecmd_free (cmd);
 	}
@@ -115,8 +115,8 @@ START_TEST (test_exec_function)
 			return;
 		}
 
-		fail_unless (WIFEXITED (status));
-		fail_unless (WEXITSTATUS (status) == i);
+		ck_assert_int_ne (WIFEXITED (status), 0);
+		ck_assert_int_eq (WEXITSTATUS (status), i);
 
 		pipecmd_free (cmd);
 	}

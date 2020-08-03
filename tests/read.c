@@ -83,8 +83,7 @@ START_TEST (test_read_long_line)
 		}
 	}
 	pipeline_free (p);
-	fail_unless (!strcmp (read_result, expected_output),
-		"Returned string doesn't match the input.");
+	ck_assert_str_eq (read_result, expected_output);
 
 	free (read_result);
 	read_result = NULL;
@@ -103,8 +102,7 @@ START_TEST (test_read_long_line)
 		}
 	}
 	pipeline_free (p);
-	fail_unless (!strcmp (read_result, expected_output),
-		"Returned string doesn't match the input.");
+	ck_assert_str_eq (read_result, expected_output);
 
 	free (testfile);
 	free (expected_output);
@@ -132,7 +130,6 @@ START_TEST (test_read_readline_slow)
 {
 	pipeline *p;
 	pipecmd *cmd;
-	const char *line;
 
 	p = pipeline_new ();
 	cmd = pipecmd_new_function ("slow_line_helper", slow_line_helper,
@@ -140,8 +137,7 @@ START_TEST (test_read_readline_slow)
 	pipeline_command (p, cmd);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
-	line = pipeline_readline (p);
-	fail_unless (!strcmp (line, "a line\n"));
+	ck_assert_str_eq (pipeline_readline (p), "a line\n");
 	pipeline_free (p);
 }
 END_TEST
