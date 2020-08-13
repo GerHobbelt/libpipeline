@@ -1,5 +1,5 @@
-libpipeline 1.5.3
-=================
+libpipeline 1.5.3 (13 August 2020)
+==================================
 
 Fix implementation-defined behaviour while handling read/write errors.
 
