@@ -2,6 +2,7 @@ libpipeline, a pipeline manipulation library
 ============================================
 
   https://nongnu.org/libpipeline/
+  https://gitlab.com/cjwatson/libpipeline
 
 libpipeline is a C library for setting up and running pipelines of
 processes, without needing to involve shell command-line parsing which is
@@ -110,5 +111,16 @@ Credits
 
 Thanks to Scott James Remnant for code review, Ian Jackson for an extensive
 design review, and Kees Cook and Matthias Klose for helpful conversations.
+
+Bug reporting
+-------------
+
+You can report bugs here:
+
+  https://gitlab.com/cjwatson/libpipeline/-/issues
+
+Bugs from before the migration to GitLab may be found here:
+
+  https://savannah.nongnu.org/bugs/?group=libpipeline
 
  -- Colin Watson <cjwatson@debian.org>
