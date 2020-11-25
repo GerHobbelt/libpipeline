@@ -1,0 +1,43 @@
+default:
+  image: gcc
+
+stages:
+  - build
+  - test
+
+bootstrap:
+  stage: .pre
+  before_script:
+    - apt -qq update
+    - apt -y -qq install autoconf automake autopoint libtool
+  script:
+    - if test -d gnulib-src; then git -C gnulib-src pull; else git clone git://git.sv.gnu.org/gnulib gnulib-src; fi
+    - rm -rf bootstrapped
+    - mkdir bootstrapped
+    - tar -cf - --exclude=bootstrapped . | tar -C bootstrapped -xf -
+    - (cd bootstrapped && GNULIB_URL=../gnulib-src ./bootstrap)
+  cache:
+    paths:
+      - gnulib-src/
+  artifacts:
+    paths:
+      - bootstrapped/
+
+build-distcheck:
+  stage: build
+  before_script:
+    - apt -qq update
+    - apt -y -qq install build-essential pkg-config check
+  script:
+    - (cd bootstrapped && ./configure)
+    - make -C bootstrapped distcheck V=1
+
+build-out-of-tree:
+  stage: build
+  before_script:
+    - apt -qq update
+    - apt -y -qq install build-essential pkg-config check
+  script:
+    - mkdir -p bootstrapped/obj
+    - (cd bootstrapped/obj && ../configure)
+    - make -C bootstrapped/obj check V=1
