@@ -3,6 +3,8 @@ libpipeline 1.5.4
 
 Move Git repository to GitLab (https://gitlab.com/cjwatson/libpipeline).
 
+Building libpipeline now requires Autoconf >= 2.64.
+
 libpipeline 1.5.3 (13 August 2020)
 ==================================
 
