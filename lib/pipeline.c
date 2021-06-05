@@ -79,7 +79,7 @@
 int clearenv (void)
 {
 	/* According to:
-	 *   http://hg.dovecot.org/dovecot-2.0/file/74d9f61e224d/src/lib/env-util.c#l56
+	 *   https://github.com/dovecot/core/blob/2.3.14/src/lib/env-util.c#L63-L70
 	 * simply setting "environ = NULL" crashes some systems.  Creating a
 	 * new environment consisting of just a terminator is indeed
 	 * probably the best we can do.

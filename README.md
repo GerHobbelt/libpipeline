@@ -17,8 +17,8 @@ If you need to install libpipeline starting from source code, then you will
 need these separate packages installed before configuring libpipeline in
 order to run its test suite:
 
- * [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config)
- * [check >= 0.9.10](http://check.sourceforge.net/)
+ * [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config)
+ * [check >= 0.9.10](https://libcheck.github.io/check/)
 
 See the INSTALL file for general installation instructions.
 
@@ -213,7 +213,7 @@ Note that this does not require that your own source code be licensed under
 the GPL v3, contrary to popular misunderstanding.  However, you must be
 prepared to distribute your work as a whole under the terms of the GPL v3 or
 later, which requires that your licence be compatible with the GPL v3.  See
-http://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses if you
+https://www.gnu.org/licenses/license-list.html#GPLCompatibleLicenses if you
 need advice on compatibility.
 
 The GPL mainly restricts distribution ("conveying", in the specific language
