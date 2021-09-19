@@ -1,4 +1,4 @@
-# pipeline-socketpair.m4 serial 1
+# pipeline-socketpair.m4 serial 2
 dnl
 dnl Check if the socketpair(2) system call can be used
 dnl and should be used as a fast replacement for pipe(2)
@@ -8,7 +8,7 @@ dnl Author: Werner Fink <werner@suse.de>, 2009
 AC_DEFUN([PIPELINE_SOCKETPAIR_PIPE],
 [ AC_MSG_CHECKING([if socketpair(2) can be used as fast replacement for pipe(2)])
   AC_CACHE_VAL(pipeline_cv_socketpair_pipe, [
-    AC_TRY_RUN([
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <netdb.h>
 #include <netinet/in.h>
 #include <signal.h>
@@ -59,7 +59,7 @@ int main()
 	close(sfd[0]);
 	write(sfd[1],test,sizeof(test) - 1);
 	return 1;
-}], [pipeline_cv_socketpair_pipe=yes], [pipeline_cv_socketpair_pipe=no], [pipeline_cv_socketpair_pipe=no])
+}]])], [pipeline_cv_socketpair_pipe=yes], [pipeline_cv_socketpair_pipe=no], [pipeline_cv_socketpair_pipe=no])
   ])
   AC_MSG_RESULT([$pipeline_cv_socketpair_pipe])
   if test "$pipeline_cv_socketpair_pipe" = yes; then
@@ -74,7 +74,7 @@ dnl
 AC_DEFUN([PIPELINE_SOCKETPAIR_MODE],
 [ AC_MSG_CHECKING([if shutdown(2) does not set mode for the socket descriptor])
   AC_CACHE_VAL(pipeline_cv_socketpair_mode, [
-    AC_TRY_RUN([
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/stat.h>
@@ -107,7 +107,7 @@ int main()
 	if ((st[0].st_mode & (S_IRUSR|S_IWUSR)) != S_IRUSR && (st[1].st_mode & (S_IRUSR|S_IWUSR)) != S_IWUSR)
 		return 1;
 	return 0;
-}], [pipeline_cv_socketpair_mode=yes], [pipeline_cv_socketpair_mode=no], [pipeline_cv_socketpair_mode=no])
+}]])], [pipeline_cv_socketpair_mode=yes], [pipeline_cv_socketpair_mode=no], [pipeline_cv_socketpair_mode=no])
   ])
   AC_MSG_RESULT([$pipeline_cv_socketpair_mode])
   if test "$pipeline_cv_socketpair_mode" = yes; then
