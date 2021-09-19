@@ -29,10 +29,10 @@ AM_MAINTAINER_MODE
 AM_SILENT_RULES([yes])
 AC_PREREQ([2.64])
 AC_CONFIG_SRCDIR([lib/pipeline.c])
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 PIPELINE_TAR_SORT_NAME
 
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_HOST
 
 # Check $PATH for the following programs and append suitable options.
@@ -59,7 +59,6 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.10], [run_tests=yes], [run_tests=no])
 AM_CONDITIONAL([RUN_TESTS], [test "x$run_tests" = xyes])
 
 # Check for various header files and associated libraries.
-AC_ISC_POSIX
 gl_INIT
 AC_CHECK_HEADERS([fcntl.h])
 AC_CHECK_FUNCS([clearenv])
