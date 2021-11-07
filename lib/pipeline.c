@@ -761,6 +761,12 @@ char *pipecmd_tostring (pipecmd *cmd)
 /* Children exit with this status if execvp fails. */
 #define EXEC_FAILED_EXIT_STATUS 0xff
 
+#ifdef SIGPIPE
+#  define IS_SIGPIPE(sig) (sig == SIGPIPE)
+#else
+#  define IS_SIGPIPE(sig) 0
+#endif
+
 /* When called internally during pipeline execution, this is called in the
  * forked child process, with file descriptors already set up.
  */
@@ -873,12 +879,9 @@ void pipecmd_exec (pipecmd *cmd)
 
 				if (WIFSIGNALED (status)) {
 					int sig = WTERMSIG (status);
-#ifdef SIGPIPE
-					if (sig == SIGPIPE)
+					if (IS_SIGPIPE (sig))
 						status = 0;
-					else
-#endif /* SIGPIPE */
-					if (getenv ("PIPELINE_QUIET"))
+					else if (getenv ("PIPELINE_QUIET"))
 						;
 					else if (WCOREDUMP (status))
 						error (0, 0,
@@ -1702,30 +1705,23 @@ int pipeline_wait_all (pipeline *p, int **statuses, int *n_statuses)
 			--proc_count;
 			if (WIFSIGNALED (status)) {
 				int sig = WTERMSIG (status);
-#ifdef SIGPIPE
-				if (sig == SIGPIPE)
+				if (IS_SIGPIPE (sig))
 					status = 0;
-				else {
-#endif /* SIGPIPE */
+				else if (sig == SIGINT || sig == SIGQUIT)
 					/* signals currently blocked,
 					 * re-raise later
 					 */
-					if (sig == SIGINT || sig == SIGQUIT)
-						raise_signal = sig;
-					else if (getenv ("PIPELINE_QUIET"))
-						;
-					else if (WCOREDUMP (status))
-						error (0, 0,
-						       "%s: %s (core dumped)",
-						       p->commands[i]->name,
-						       strsignal (sig));
-					else
-						error (0, 0, "%s: %s",
-						       p->commands[i]->name,
-						       strsignal (sig));
-#ifdef SIGPIPE
-				}
-#endif /* SIGPIPE */
+					raise_signal = sig;
+				else if (getenv ("PIPELINE_QUIET"))
+					;
+				else if (WCOREDUMP (status))
+					error (0, 0, "%s: %s (core dumped)",
+					       p->commands[i]->name,
+					       strsignal (sig));
+				else
+					error (0, 0, "%s: %s",
+					       p->commands[i]->name,
+					       strsignal (sig));
 			} else if (!WIFEXITED (status))
 				error (0, 0, "unexpected status %d",
 				       status);
