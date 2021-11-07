@@ -88,7 +88,7 @@ START_TEST (test_pump_tee)
 
 	source = pipeline_new ();
 	pipeline_command (source,
-			  pipecmd_new_function ("source", tee_source, 
+			  pipecmd_new_function ("source", tee_source,
 						NULL, NULL));
 	sink_process = pipeline_new_command_args ("cat", (void *) 0);
 	process_outfile = xasprintf ("%s/process", temp_dir);
