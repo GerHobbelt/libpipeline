@@ -37,7 +37,7 @@ void temp_dir_setup (void)
 {
 	temp_dir = xstrdup ("libpipeline.XXXXXX");
 	if (mkdtemp (temp_dir) == NULL)
-		fail ("mkdtemp failed: %s", strerror (errno));
+		ck_abort_msg ("mkdtemp failed: %s", strerror (errno));
 }
 
 void temp_dir_teardown (void)

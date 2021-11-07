@@ -56,7 +56,7 @@ START_TEST (test_read_long_line)
 	char *testfile = xasprintf ("%s/test", temp_dir);
 	FILE *tfd = fopen (testfile, "w");
 	if (!tfd) {
-		fail ("fopen failed: %s", strerror (errno));
+		ck_abort_msg ("fopen failed: %s", strerror (errno));
 		return;
 	}
 	fprintf (tfd, "%s\n", random_string);

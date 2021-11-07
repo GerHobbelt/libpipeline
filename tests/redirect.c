@@ -45,7 +45,7 @@ START_TEST (test_redirect_files)
 
 	fd = mkstemp (template);
 	if (fd < 0) {
-		fail ("mkstemp failed: %s", strerror (errno));
+		ck_abort_msg ("mkstemp failed: %s", strerror (errno));
 		return;
 	}
 	fh = fdopen (fd, "w");
