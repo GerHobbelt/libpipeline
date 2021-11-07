@@ -23,8 +23,8 @@
 #  include "config.h"
 #endif
 
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "full-write.h"
 #include "xalloc.h"
@@ -39,8 +39,8 @@ const char *program_name = "pump";
 
 static void assert_files_equal (const char *left, const char *right)
 {
-	pipeline *diff = pipeline_new_command_args
-		("diff", "-u", left, right, (void *) 0);
+	pipeline *diff = pipeline_new_command_args ("diff", "-u", left, right,
+	                                            (void *) 0);
 	ck_assert_int_eq (pipeline_run (diff), 0);
 }
 
@@ -87,9 +87,8 @@ START_TEST (test_pump_tee)
 	char *process_outfile, *function_outfile;
 
 	source = pipeline_new ();
-	pipeline_command (source,
-			  pipecmd_new_function ("source", tee_source,
-						NULL, NULL));
+	pipeline_command (source, pipecmd_new_function ("source", tee_source,
+	                                                NULL, NULL));
 	sink_process = pipeline_new_command_args ("cat", (void *) 0);
 	process_outfile = xasprintf ("%s/process", temp_dir);
 	pipeline_want_outfile (sink_process, process_outfile);
@@ -117,8 +116,8 @@ static Suite *pump_suite (void)
 	Suite *s = suite_create ("Pump");
 
 	TEST_CASE (s, pump, connect_attaches_correctly);
-	TEST_CASE_WITH_FIXTURE (s, pump, tee,
-				temp_dir_setup, temp_dir_teardown);
+	TEST_CASE_WITH_FIXTURE (s, pump, tee, temp_dir_setup,
+	                        temp_dir_teardown);
 
 	return s;
 }

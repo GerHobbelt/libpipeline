@@ -25,22 +25,24 @@
 #include "pipeline.h"
 
 /* exit codes */
-#define OK		0	/* success */
-#define FAIL		1	/* usage or syntax error */
-#define FATAL		2	/* operational error */
+#define OK 0    /* success */
+#define FAIL 1  /* usage or syntax error */
+#define FATAL 2 /* operational error */
 
 extern char *appendstr (char *, ...)
-	PIPELINE_ATTR_SENTINEL PIPELINE_ATTR_WARN_UNUSED_RESULT;
+        PIPELINE_ATTR_SENTINEL PIPELINE_ATTR_WARN_UNUSED_RESULT;
 
 extern void init_debug (void);
 extern int debug_level;
-extern void debug (const char *message, ...) PIPELINE_ATTR_FORMAT_PRINTF(1, 2);
+extern void debug (const char *message, ...)
+        PIPELINE_ATTR_FORMAT_PRINTF (1, 2);
 
 #if defined(HAVE_SETENV) && !defined(HAVE_CLEARENV)
 extern int clearenv (void);
 #endif
 
-enum pipecmd_tag {
+enum pipecmd_tag
+{
 	PIPECMD_PROCESS,
 	PIPECMD_FUNCTION,
 	PIPECMD_SEQUENCE
@@ -55,11 +57,11 @@ struct pipecmd {
 	enum pipecmd_tag tag;
 	char *name;
 	int nice;
-	int discard_err;	/* discard stderr? */
+	int discard_err; /* discard stderr? */
 	int cwd_fd;
 	char *cwd;
 	int nenv;
-	int env_max;		/* size of allocated array */
+	int env_max; /* size of allocated array */
 	struct pipecmd_env *env;
 	pipecmd_function_type *pre_exec_func;
 	pipecmd_function_type *pre_exec_free_func;
@@ -67,7 +69,7 @@ struct pipecmd {
 	union {
 		struct pipecmd_process {
 			int argc;
-			int argv_max;	/* size of allocated array */
+			int argv_max; /* size of allocated array */
 			char **argv;
 		} process;
 		struct pipecmd_function {
@@ -83,7 +85,8 @@ struct pipecmd {
 	} u;
 };
 
-enum pipeline_redirect {
+enum pipeline_redirect
+{
 	REDIRECT_NONE,
 	REDIRECT_FD,
 	REDIRECT_FILE_NAME
@@ -91,10 +94,10 @@ enum pipeline_redirect {
 
 struct pipeline {
 	int ncommands;
-	int commands_max;	/* size of allocated array */
+	int commands_max; /* size of allocated array */
 	pipecmd **commands;
 	pid_t *pids;
-	int *statuses;		/* -1 until command exits */
+	int *statuses; /* -1 until command exits */
 
 	/* REDIRECT_NONE for no redirection; REDIRECT_FD for redirection
 	 * from/to file descriptor; REDIRECT_FILE_NAME for redirection

@@ -23,9 +23,9 @@
 #  include "config.h"
 #endif
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #include "xalloc.h"
 
@@ -42,8 +42,8 @@ void temp_dir_setup (void)
 
 void temp_dir_teardown (void)
 {
-	pipeline_run (pipeline_new_command_args ("rm", "-rf", temp_dir,
-						 (void *) 0));
+	pipeline_run (
+	        pipeline_new_command_args ("rm", "-rf", temp_dir, (void *) 0));
 	free (temp_dir);
 	temp_dir = NULL;
 }

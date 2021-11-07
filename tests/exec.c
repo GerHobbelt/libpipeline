@@ -23,12 +23,12 @@
 #  include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "xvasprintf.h"
 
@@ -98,7 +98,7 @@ START_TEST (test_exec_function)
 		int status;
 
 		cmd = pipecmd_new_function ("exit_helper", exit_helper, NULL,
-					    &i);
+		                            &i);
 
 		pid = fork ();
 		if (pid < 0) {

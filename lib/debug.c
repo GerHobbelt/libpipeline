@@ -24,11 +24,11 @@
 #  include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 #include <errno.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "pipeline-private.h"
 
@@ -48,8 +48,8 @@ void init_debug (void)
 		debug_level = 1;
 }
 
-static void PIPELINE_ATTR_FORMAT_PRINTF (1, 0) vdebug (const char *message,
-						       va_list args)
+static void PIPELINE_ATTR_FORMAT_PRINTF (1, 0)
+        vdebug (const char *message, va_list args)
 {
 	if (debug_level)
 		vfprintf (stderr, message, args);

@@ -1,0 +1,14 @@
+BasedOnStyle: LLVM
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+BreakBeforeBraces: Linux
+ColumnLimit: 79
+ContinuationIndentWidth: 8
+IndentCaseLabels: true
+IndentGotoLabels: false
+IndentPPDirectives: AfterHash
+IndentWidth: 8
+PPIndentWidth: 2
+SpaceAfterCStyleCast: true
+SpaceBeforeParens: Always
+UseTab: ForIndentation

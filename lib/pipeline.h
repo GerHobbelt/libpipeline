@@ -29,24 +29,24 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <sys/types.h>
 
 /* GCC version checking borrowed from glibc. */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
-#  define PIPELINE_GNUC_PREREQ(maj,min) \
-	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+#  define PIPELINE_GNUC_PREREQ(maj, min)                                      \
+    ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
 #else
-#  define PIPELINE_GNUC_PREREQ(maj,min) 0
+#  define PIPELINE_GNUC_PREREQ(maj, min) 0
 #endif
 
 /* Does this compiler support format string checking? */
-#if PIPELINE_GNUC_PREREQ(2,0)
-#  define PIPELINE_ATTR_FORMAT_PRINTF(a,b) \
-	__attribute__ ((__format__ (__printf__, a, b)))
+#if PIPELINE_GNUC_PREREQ(2, 0)
+#  define PIPELINE_ATTR_FORMAT_PRINTF(a, b)                                   \
+    __attribute__ ((__format__ (__printf__, a, b)))
 #else
-#  define PIPELINE_ATTR_FORMAT_PRINTF(a,b)
+#  define PIPELINE_ATTR_FORMAT_PRINTF(a, b)
 #endif
 
 /* Does this compiler support marking variables as unused? */
@@ -54,29 +54,29 @@ extern "C" {
  * libpipeline's public API, but is preserved just in case somebody used it
  * anyway.
  */
-#if PIPELINE_GNUC_PREREQ(2,4)
+#if PIPELINE_GNUC_PREREQ(2, 4)
 #  define PIPELINE_ATTR_UNUSED __attribute__ ((__unused__))
 #else
 #  define PIPELINE_ATTR_UNUSED
 #endif
 
 /* Does this compiler support marking functions as non-returning? */
-#if PIPELINE_GNUC_PREREQ(2,5)
+#if PIPELINE_GNUC_PREREQ(2, 5)
 #  define PIPELINE_ATTR_NORETURN __attribute__ ((__noreturn__))
 #else
 #  define PIPELINE_ATTR_NORETURN
 #endif
 
 /* Does this compiler support unused result checking? */
-#if PIPELINE_GNUC_PREREQ(3,4)
-#  define PIPELINE_ATTR_WARN_UNUSED_RESULT \
-	__attribute__ ((__warn_unused_result__))
+#if PIPELINE_GNUC_PREREQ(3, 4)
+#  define PIPELINE_ATTR_WARN_UNUSED_RESULT                                    \
+    __attribute__ ((__warn_unused_result__))
 #else
 #  define PIPELINE_ATTR_WARN_UNUSED_RESULT
 #endif
 
 /* Does this compiler support sentinel checking? */
-#if PIPELINE_GNUC_PREREQ(4,0)
+#if PIPELINE_GNUC_PREREQ(4, 0)
 #  define PIPELINE_ATTR_SENTINEL __attribute__ ((__sentinel__))
 #else
 #  define PIPELINE_ATTR_SENTINEL
@@ -119,10 +119,9 @@ pipecmd *pipecmd_new_argstr (const char *argstr);
  * pipecmd_* functions that deal with arguments cannot be used with the
  * command returned by this function.
  */
-pipecmd *pipecmd_new_function (const char *name,
-			       pipecmd_function_type *func,
-			       pipecmd_function_free_type *free_func,
-			       void *data);
+pipecmd *pipecmd_new_function (const char *name, pipecmd_function_type *func,
+                               pipecmd_function_free_type *free_func,
+                               void *data);
 
 /* Construct a new command that runs a sequence of commands. The commands
  * will be executed in forked children; if any exits non-zero then it will
@@ -145,7 +144,7 @@ void pipecmd_arg (pipecmd *cmd, const char *arg);
 
 /* Convenience function to add an argument with printf substitutions. */
 void pipecmd_argf (pipecmd *cmd, const char *format, ...)
-	PIPELINE_ATTR_FORMAT_PRINTF(2, 3);
+        PIPELINE_ATTR_FORMAT_PRINTF (2, 3);
 
 /* Convenience functions wrapping pipecmd_arg().
  * Terminate arguments with NULL.
@@ -211,10 +210,8 @@ void pipecmd_clearenv (pipecmd *cmd);
  * slightly later (immediately before exec rather than immediately after
  * fork).
  */
-void pipecmd_pre_exec (pipecmd *cmd,
-		       pipecmd_function_type *func,
-		       pipecmd_function_free_type *free_func,
-		       void *data);
+void pipecmd_pre_exec (pipecmd *cmd, pipecmd_function_type *func,
+                       pipecmd_function_free_type *free_func, void *data);
 
 /* Add a command to a sequence. */
 void pipecmd_sequence_command (pipecmd *cmd, pipecmd *child);
@@ -250,8 +247,8 @@ pipeline *pipeline_new_commands (pipecmd *cmd1, ...) PIPELINE_ATTR_SENTINEL;
 
 /* Construct a new pipeline and add a single command to it. */
 pipeline *pipeline_new_command_argv (const char *name, va_list argv);
-pipeline *pipeline_new_command_args (const char *name, ...)
-	PIPELINE_ATTR_SENTINEL;
+pipeline *pipeline_new_command_args (const char *name,
+                                     ...) PIPELINE_ATTR_SENTINEL;
 
 /* Joins two pipelines, neither of which are allowed to be started. Discards
  * want_out, want_outfile, and outfd from p1, and want_in, want_infile, and
@@ -271,16 +268,16 @@ pipeline *pipeline_join (pipeline *p1, pipeline *p2);
  * more than one sink pipeline is involved, in which case the pipelines
  * cannot simply be concatenated into one.
  */
-void pipeline_connect (pipeline *source, pipeline *sink, ...)
-	PIPELINE_ATTR_SENTINEL;
+void pipeline_connect (pipeline *source, pipeline *sink,
+                       ...) PIPELINE_ATTR_SENTINEL;
 
 /* Add a command to a pipeline. */
 void pipeline_command (pipeline *p, pipecmd *cmd);
 
 /* Construct a new command and add it to a pipeline in one go. */
 void pipeline_command_argv (pipeline *p, const char *name, va_list argv);
-void pipeline_command_args (pipeline *p, const char *name, ...)
-	PIPELINE_ATTR_SENTINEL;
+void pipeline_command_args (pipeline *p, const char *name,
+                            ...) PIPELINE_ATTR_SENTINEL;
 
 /* Construct a new command from a shell-quoted string and add it to a
  * pipeline in one go. See the comment against pipecmd_new_argstr() above if

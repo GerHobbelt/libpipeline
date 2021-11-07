@@ -23,11 +23,12 @@
 #  include "config.h"
 #endif
 
-#include <sys/select.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/select.h>
 #include <unistd.h>
+
 #include "xalloc.h"
 #include "xvasprintf.h"
 
@@ -43,7 +44,7 @@ START_TEST (test_read_long_line)
 {
 	/* Generate long random string */
 	static const char *alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"abcdefghijklmnopqrstuvwxyz";
+	                              "abcdefghijklmnopqrstuvwxyz";
 	char random_string[RANDOM_STR_LEN] = "";
 	unsigned i;
 
@@ -73,7 +74,7 @@ START_TEST (test_read_long_line)
 	pipeline_want_infile (p, testfile);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
-	while ((line = pipeline_readline (p)) != NULL){
+	while ((line = pipeline_readline (p)) != NULL) {
 		if (read_result) {
 			temp = read_result;
 			read_result = xasprintf ("%s%s", read_result, line);
@@ -92,7 +93,7 @@ START_TEST (test_read_long_line)
 	pipeline_want_infile (p, testfile);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
-	while ((line = pipeline_readline (p)) != NULL){
+	while ((line = pipeline_readline (p)) != NULL) {
 		if (read_result) {
 			temp = read_result;
 			read_result = xasprintf ("%s%s", read_result, line);
@@ -132,8 +133,8 @@ START_TEST (test_read_readline_slow)
 	pipecmd *cmd;
 
 	p = pipeline_new ();
-	cmd = pipecmd_new_function ("slow_line_helper", slow_line_helper,
-				    free, xstrdup ("a line\nsome more"));
+	cmd = pipecmd_new_function ("slow_line_helper", slow_line_helper, free,
+	                            xstrdup ("a line\nsome more"));
 	pipeline_command (p, cmd);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
@@ -146,8 +147,8 @@ static Suite *read_suite (void)
 {
 	Suite *s = suite_create ("Read");
 
-	TEST_CASE_WITH_FIXTURE (s, read, long_line,
-				temp_dir_setup, temp_dir_teardown);
+	TEST_CASE_WITH_FIXTURE (s, read, long_line, temp_dir_setup,
+	                        temp_dir_teardown);
 	TEST_CASE (s, read, readline_slow);
 
 	return s;

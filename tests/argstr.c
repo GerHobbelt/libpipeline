@@ -48,8 +48,8 @@ START_TEST (test_argstr_torture)
 {
 	pipecmd *cmd;
 
-	cmd = pipecmd_new_argstr
-		("x' \\' \\$\\'\\\"\" \\'\\$\\\"\\\\ \" \\\"");
+	cmd = pipecmd_new_argstr (
+	        "x' \\' \\$\\'\\\"\" \\'\\$\\\"\\\\ \" \\\"");
 	ck_assert_str_eq (cmd->name, "x \\");
 	ck_assert_int_eq (cmd->u.process.argc, 3);
 	ck_assert_str_eq (cmd->u.process.argv[0], "x \\");

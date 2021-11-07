@@ -26,19 +26,19 @@
 #  include "config.h"
 #endif
 
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <errno.h>
+#include <string.h>
 #include <sys/select.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <assert.h>
-#include <string.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "dirname.h"
 #include "full-write.h"
@@ -48,31 +48,37 @@
 #include "xstrndup.h"
 #include "xvasprintf.h"
 
-#include "pipeline-private.h"
 #include "error.h"
+#include "pipeline-private.h"
 #include "pipeline.h"
 
 #ifdef USE_SOCKETPAIR_PIPE
-#   include <netdb.h>
-#   include <netinet/in.h>
-#   include <sys/socket.h>
-#   ifdef CORRECT_SOCKETPAIR_MODE
-#	include <sys/stat.h>
-#   endif
-#   ifndef SHUT_RD
-#	define SHUT_RD		0
-#   endif
-#   ifndef SHUT_WR
-#	define SHUT_WR		1
-#   endif
-#   ifdef CORRECT_SOCKETPAIR_MODE
-#	define pipe(p) (((socketpair(AF_UNIX,SOCK_STREAM,0,p) < 0) || \
-                   (shutdown((p)[1],SHUT_RD) < 0) || (fchmod((p)[1],S_IWUSR) < 0) || \
-                   (shutdown((p)[0],SHUT_WR) < 0) || (fchmod((p)[0],S_IRUSR) < 0)) ? -1 : 0)
-#   else
-#	define pipe(p) (((socketpair(AF_UNIX,SOCK_STREAM,0,p) < 0) || \
-                   (shutdown((p)[1],SHUT_RD) < 0) || (shutdown((p)[0],SHUT_WR) < 0)) ? -1 : 0)
-#   endif
+#  include <netdb.h>
+#  include <netinet/in.h>
+#  include <sys/socket.h>
+#  ifdef CORRECT_SOCKETPAIR_MODE
+#    include <sys/stat.h>
+#  endif
+#  ifndef SHUT_RD
+#    define SHUT_RD 0
+#  endif
+#  ifndef SHUT_WR
+#    define SHUT_WR 1
+#  endif
+#  ifdef CORRECT_SOCKETPAIR_MODE
+#    define pipe(p)                                                           \
+      (((socketpair (AF_UNIX, SOCK_STREAM, 0, p) < 0) ||                      \
+	(shutdown ((p)[1], SHUT_RD) < 0) || (fchmod ((p)[1], S_IWUSR) < 0) || \
+	(shutdown ((p)[0], SHUT_WR) < 0) || (fchmod ((p)[0], S_IRUSR) < 0))   \
+	       ? -1                                                           \
+	       : 0)
+#  else
+#    define pipe(p)                                                           \
+      (((socketpair (AF_UNIX, SOCK_STREAM, 0, p) < 0) ||                      \
+	(shutdown ((p)[1], SHUT_RD) < 0) || (shutdown ((p)[0], SHUT_WR) < 0)) \
+	       ? -1                                                           \
+	       : 0)
+#  endif
 #endif
 
 #if defined(HAVE_SETENV) && !defined(HAVE_CLEARENV)
@@ -167,7 +173,12 @@ static char *argstr_get_word (const char **argstr)
 {
 	char *out = NULL;
 	const char *litstart = *argstr;
-	enum { NONE, SINGLE, DOUBLE } quotemode = NONE;
+	enum
+	{
+		NONE,
+		SINGLE,
+		DOUBLE
+	} quotemode = NONE;
 
 	while (**argstr) {
 		char backslashed[2];
@@ -263,8 +274,7 @@ pipecmd *pipecmd_new_argstr (const char *argstr)
 
 	arg = argstr_get_word (&argstr);
 	if (!arg)
-		error (FATAL, 0,
-		       "badly formed configuration directive: '%s'",
+		error (FATAL, 0, "badly formed configuration directive: '%s'",
 		       argstr);
 	if (!strcmp (arg, "exec")) {
 		/* Some old configuration files have "exec command" rather
@@ -291,10 +301,9 @@ pipecmd *pipecmd_new_argstr (const char *argstr)
 	return cmd;
 }
 
-pipecmd *pipecmd_new_function (const char *name,
-			       pipecmd_function_type *func,
-			       pipecmd_function_free_type *free_func,
-			       void *data)
+pipecmd *pipecmd_new_function (const char *name, pipecmd_function_type *func,
+                               pipecmd_function_free_type *free_func,
+                               void *data)
 {
 	pipecmd *cmd = XMALLOC (pipecmd);
 	struct pipecmd_function *cmdf;
@@ -383,8 +392,8 @@ static void passthrough (void *data _GL_UNUSED)
 			break;
 		if (r == 0)
 			break;
-		if (full_write (STDOUT_FILENO, buffer,
-				(size_t) r) < (size_t) r)
+		if (full_write (STDOUT_FILENO, buffer, (size_t) r) <
+		    (size_t) r)
 			break;
 	}
 
@@ -419,9 +428,9 @@ pipecmd *pipecmd_dup (pipecmd *cmd)
 
 	for (i = 0; i < cmd->nenv; ++i) {
 		newcmd->env[i].name =
-			cmd->env[i].name ? xstrdup (cmd->env[i].name) : NULL;
+		        cmd->env[i].name ? xstrdup (cmd->env[i].name) : NULL;
 		newcmd->env[i].value =
-			cmd->env[i].value ? xstrdup (cmd->env[i].value) : NULL;
+		        cmd->env[i].value ? xstrdup (cmd->env[i].value) : NULL;
 	}
 
 	switch (newcmd->tag) {
@@ -432,8 +441,8 @@ pipecmd *pipecmd_dup (pipecmd *cmd)
 			newcmdp->argc = cmdp->argc;
 			newcmdp->argv_max = cmdp->argv_max;
 			assert (newcmdp->argc < newcmdp->argv_max);
-			newcmdp->argv = xmalloc
-				(newcmdp->argv_max * sizeof *newcmdp->argv);
+			newcmdp->argv = xmalloc (newcmdp->argv_max *
+			                         sizeof *newcmdp->argv);
 
 			for (i = 0; i < cmdp->argc; ++i)
 				newcmdp->argv[i] = xstrdup (cmdp->argv[i]);
@@ -460,13 +469,13 @@ pipecmd *pipecmd_dup (pipecmd *cmd)
 			newcmds->ncommands = cmds->ncommands;
 			newcmds->commands_max = cmds->commands_max;
 			assert (newcmds->ncommands <= newcmds->commands_max);
-			newcmds->commands = xmalloc
-				(newcmds->commands_max *
-				 sizeof *newcmds->commands);
+			newcmds->commands =
+			        xmalloc (newcmds->commands_max *
+			                 sizeof *newcmds->commands);
 
 			for (i = 0; i < cmds->ncommands; ++i)
 				newcmds->commands[i] =
-					pipecmd_dup (cmds->commands[i]);
+				        pipecmd_dup (cmds->commands[i]);
 
 			break;
 		}
@@ -485,7 +494,7 @@ void pipecmd_arg (pipecmd *cmd, const char *arg)
 	if (cmdp->argc + 1 >= cmdp->argv_max) {
 		cmdp->argv_max *= 2;
 		cmdp->argv = xrealloc (cmdp->argv,
-				       cmdp->argv_max * sizeof *cmdp->argv);
+		                       cmdp->argv_max * sizeof *cmdp->argv);
 	}
 
 	cmdp->argv[cmdp->argc++] = xstrdup (arg);
@@ -575,8 +584,8 @@ void pipecmd_setenv (pipecmd *cmd, const char *name, const char *value)
 {
 	if (cmd->nenv >= cmd->env_max) {
 		cmd->env_max *= 2;
-		cmd->env = xrealloc (cmd->env,
-				     cmd->env_max * sizeof *cmd->env);
+		cmd->env =
+		        xrealloc (cmd->env, cmd->env_max * sizeof *cmd->env);
 	}
 
 	cmd->env[cmd->nenv].name = xstrdup (name);
@@ -588,8 +597,8 @@ void pipecmd_unsetenv (pipecmd *cmd, const char *name)
 {
 	if (cmd->nenv >= cmd->env_max) {
 		cmd->env_max *= 2;
-		cmd->env = xrealloc (cmd->env,
-				     cmd->env_max * sizeof *cmd->env);
+		cmd->env =
+		        xrealloc (cmd->env, cmd->env_max * sizeof *cmd->env);
 	}
 
 	cmd->env[cmd->nenv].name = xstrdup (name);
@@ -601,8 +610,8 @@ void pipecmd_clearenv (pipecmd *cmd)
 {
 	if (cmd->nenv >= cmd->env_max) {
 		cmd->env_max *= 2;
-		cmd->env = xrealloc (cmd->env,
-				     cmd->env_max * sizeof *cmd->env);
+		cmd->env =
+		        xrealloc (cmd->env, cmd->env_max * sizeof *cmd->env);
 	}
 
 	cmd->env[cmd->nenv].name = NULL;
@@ -610,10 +619,8 @@ void pipecmd_clearenv (pipecmd *cmd)
 	++cmd->nenv;
 }
 
-void pipecmd_pre_exec (pipecmd *cmd,
-		       pipecmd_function_type *func,
-		       pipecmd_function_free_type *free_func,
-		       void *data)
+void pipecmd_pre_exec (pipecmd *cmd, pipecmd_function_type *func,
+                       pipecmd_function_free_type *free_func, void *data)
 {
 	cmd->pre_exec_func = func;
 	cmd->pre_exec_free_func = free_func;
@@ -629,9 +636,9 @@ void pipecmd_sequence_command (pipecmd *cmd, pipecmd *child)
 
 	if (cmds->ncommands >= cmds->commands_max) {
 		cmds->commands_max *= 2;
-		cmds->commands = xrealloc
-			(cmds->commands,
-			 cmds->commands_max * sizeof *cmds->commands);
+		cmds->commands =
+		        xrealloc (cmds->commands,
+		                  cmds->commands_max * sizeof *cmds->commands);
 	}
 
 	cmds->commands[cmds->ncommands++] = child;
@@ -648,10 +655,9 @@ void pipecmd_dump (pipecmd *cmd, FILE *stream)
 
 	for (i = 0; i < cmd->nenv; ++i) {
 		if (cmd->env[i].name)
-			fprintf (stream, "%s=%s ",
-				 cmd->env[i].name,
-				 cmd->env[i].value ? cmd->env[i].value
-						   : "<unset>");
+			fprintf (stream, "%s=%s ", cmd->env[i].name,
+			         cmd->env[i].value ? cmd->env[i].value
+			                           : "<unset>");
 		else
 			fputs ("env -i ", stream);
 	}
@@ -701,7 +707,7 @@ char *pipecmd_tostring (pipecmd *cmd)
 	if (cmd->cwd_fd >= 0) {
 		char *cwd_fd_str = xasprintf ("%d", cmd->cwd_fd);
 		out = appendstr (out, "(cd <fd ", cwd_fd_str, "> && ",
-				 (void *) 0);
+		                 (void *) 0);
 		free (cwd_fd_str);
 	} else if (cmd->cwd)
 		out = appendstr (out, "(cd ", cmd->cwd, " && ", (void *) 0);
@@ -709,9 +715,9 @@ char *pipecmd_tostring (pipecmd *cmd)
 	for (i = 0; i < cmd->nenv; ++i) {
 		if (cmd->env[i].name)
 			out = appendstr (out, cmd->env[i].name, "=",
-					 cmd->env[i].value ? cmd->env[i].value
-							   : "<unset>",
-					 " ", (void *) 0);
+			                 cmd->env[i].value ? cmd->env[i].value
+			                                   : "<unset>",
+			                 " ", (void *) 0);
 		else
 			out = appendstr (out, "env -i ", (void *) 0);
 	}
@@ -724,7 +730,7 @@ char *pipecmd_tostring (pipecmd *cmd)
 			for (i = 1; i < cmdp->argc; ++i)
 				/* TODO: escape_shell()? */
 				out = appendstr (out, " ", cmdp->argv[i],
-						 (void *) 0);
+				                 (void *) 0);
 
 			break;
 		}
@@ -738,13 +744,13 @@ char *pipecmd_tostring (pipecmd *cmd)
 
 			out = appendstr (out, "(", (void *) 0);
 			for (i = 0; i < cmds->ncommands; ++i) {
-				char *subout = pipecmd_tostring
-					(cmds->commands[i]);
+				char *subout =
+				        pipecmd_tostring (cmds->commands[i]);
 				out = appendstr (out, subout, (void *) 0);
 				free (subout);
 				if (i < cmds->ncommands - 1)
 					out = appendstr (out, " && ",
-							 (void *) 0);
+					                 (void *) 0);
 			}
 			out = appendstr (out, ")", (void *) 0);
 
@@ -800,8 +806,8 @@ void pipecmd_exec (pipecmd *cmd)
 	for (i = 0; i < cmd->nenv; ++i) {
 		if (cmd->env[i].name) {
 			if (cmd->env[i].value)
-				setenv (cmd->env[i].name,
-					cmd->env[i].value, 1);
+				setenv (cmd->env[i].name, cmd->env[i].value,
+				        1);
 			else
 				unsetenv (cmd->env[i].name);
 		} else
@@ -865,8 +871,8 @@ void pipecmd_exec (pipecmd *cmd)
 					error (FATAL, errno, "fork failed");
 				if (pid == 0)
 					pipecmd_exec (child);
-				debug ("Started \"%s\", pid %d\n",
-				       child->name, pid);
+				debug ("Started \"%s\", pid %d\n", child->name,
+				       pid);
 
 				while (waitpid (pid, &status, 0) < 0) {
 					if (errno == EINTR)
@@ -874,8 +880,8 @@ void pipecmd_exec (pipecmd *cmd)
 					error (FATAL, errno, "waitpid failed");
 				}
 
-				debug ("  \"%s\" (%d) -> %d\n",
-				       child->name, pid, status);
+				debug ("  \"%s\" (%d) -> %d\n", child->name,
+				       pid, status);
 
 				if (WIFSIGNALED (status)) {
 					int sig = WTERMSIG (status);
@@ -898,10 +904,10 @@ void pipecmd_exec (pipecmd *cmd)
 
 				if (child->tag == PIPECMD_FUNCTION) {
 					struct pipecmd_function *cmdf =
-						&child->u.function;
+					        &child->u.function;
 					if (cmdf->free_func)
-						(*cmdf->free_func)
-							(cmdf->data);
+						(*cmdf->free_func) (
+						        cmdf->data);
 				}
 
 				if (WIFSIGNALED (status)) {
@@ -1115,7 +1121,7 @@ void pipeline_command (pipeline *p, pipecmd *cmd)
 	if (p->ncommands >= p->commands_max) {
 		p->commands_max *= 2;
 		p->commands = xrealloc (p->commands,
-					p->commands_max * sizeof *p->commands);
+		                        p->commands_max * sizeof *p->commands);
 	}
 
 	p->commands[p->ncommands++] = cmd;
@@ -1167,7 +1173,7 @@ int _GL_ATTRIBUTE_PURE pipeline_get_ncommands (pipeline *p)
 	return p->ncommands;
 }
 
-pipecmd * _GL_ATTRIBUTE_PURE pipeline_get_command (pipeline *p, int n)
+pipecmd *_GL_ATTRIBUTE_PURE pipeline_get_command (pipeline *p, int n)
 {
 	if (n < 0 || n >= p->ncommands)
 		return NULL;
@@ -1186,7 +1192,7 @@ pipecmd *pipeline_set_command (pipeline *p, int n, pipecmd *cmd)
 
 pid_t _GL_ATTRIBUTE_PURE pipeline_get_pid (pipeline *p, int n)
 {
-	assert (p->pids);	/* pipeline started */
+	assert (p->pids); /* pipeline started */
 	if (n < 0 || n >= p->ncommands)
 		return -1;
 	return p->pids[n];
@@ -1227,7 +1233,7 @@ void pipeline_ignore_signals (pipeline *p, int ignore_signals)
 
 FILE *pipeline_get_infile (pipeline *p)
 {
-	assert (p->pids);	/* pipeline started */
+	assert (p->pids); /* pipeline started */
 	assert (p->statuses);
 	if (p->infile)
 		return p->infile;
@@ -1240,7 +1246,7 @@ FILE *pipeline_get_infile (pipeline *p)
 
 FILE *pipeline_get_outfile (pipeline *p)
 {
-	assert (p->pids);	/* pipeline started */
+	assert (p->pids); /* pipeline started */
 	assert (p->statuses);
 	if (p->outfile)
 		return p->outfile;
@@ -1260,9 +1266,11 @@ void pipeline_dump (pipeline *p, FILE *stream)
 		if (i < p->ncommands - 1)
 			fputs (" | ", stream);
 	}
+	/* clang-format off */
 	fprintf (stream, " [input: {%d, %s}, output: {%d, %s}]\n",
-		 p->want_in, p->want_infile ? p->want_infile : "NULL",
-		 p->want_out, p->want_outfile ? p->want_outfile : "NULL");
+	         p->want_in, p->want_infile ? p->want_infile : "NULL",
+	         p->want_out, p->want_outfile ? p->want_outfile : "NULL");
+	/* clang-format on */
 }
 
 char *pipeline_tostring (pipeline *p)
@@ -1426,7 +1434,7 @@ void pipeline_start (pipeline *p)
 	/* Make sure our SIGCHLD handler is installed. */
 	pipeline_install_sigchld ();
 
-	assert (!p->pids);	/* pipeline not started already */
+	assert (!p->pids); /* pipeline not started already */
 	assert (!p->statuses);
 
 	init_debug ();
@@ -1472,12 +1480,12 @@ void pipeline_start (pipeline *p)
 		else
 			max_active_pipelines = 4;
 		/* reduces to xmalloc (...) if active_pipelines == NULL */
-		active_pipelines = xrealloc
-			(active_pipelines,
-			 max_active_pipelines * sizeof *active_pipelines);
+		active_pipelines = xrealloc (active_pipelines,
+		                             max_active_pipelines *
+		                                     sizeof *active_pipelines);
 		memset (active_pipelines + filled, 0,
-			(max_active_pipelines - filled) *
-				sizeof *active_pipelines);
+		        (max_active_pipelines - filled) *
+		                sizeof *active_pipelines);
 	}
 
 	for (i = 0; i < max_active_pipelines; ++i)
@@ -1527,9 +1535,9 @@ void pipeline_start (pipeline *p)
 				output_write = p->want_out;
 			else if (p->redirect_out == REDIRECT_FILE_NAME) {
 				assert (p->want_outfile);
-				output_write = open (p->want_outfile,
-						     O_WRONLY | O_CREAT |
-						     O_TRUNC, 0666);
+				output_write = open (
+				        p->want_outfile,
+				        O_WRONLY | O_CREAT | O_TRUNC, 0666);
 				if (output_write < 0)
 					error (FATAL, errno, "can't open %s",
 					       p->want_outfile);
@@ -1644,7 +1652,7 @@ int pipeline_wait_all (pipeline *p, int **statuses, int *n_statuses)
 		pipeline_dump (p, stderr);
 	}
 
-	assert (p->pids);	/* pipeline started */
+	assert (p->pids); /* pipeline started */
 	assert (p->statuses);
 
 	if (p->infile) {
@@ -1693,9 +1701,8 @@ int pipeline_wait_all (pipeline *p, int **statuses, int *n_statuses)
 			if (p->pids[i] == -1)
 				continue;
 
-			debug ("  \"%s\" (%d) -> %d\n",
-			       p->commands[i]->name, p->pids[i],
-			       p->statuses[i]);
+			debug ("  \"%s\" (%d) -> %d\n", p->commands[i]->name,
+			       p->pids[i], p->statuses[i]);
 
 			if (p->statuses[i] == -1)
 				continue;
@@ -1723,12 +1730,11 @@ int pipeline_wait_all (pipeline *p, int **statuses, int *n_statuses)
 					       p->commands[i]->name,
 					       strsignal (sig));
 			} else if (!WIFEXITED (status))
-				error (0, 0, "unexpected status %d",
-				       status);
+				error (0, 0, "unexpected status %d", status);
 
 			if (p->commands[i]->tag == PIPECMD_FUNCTION) {
 				struct pipecmd_function *cmdf =
-					&p->commands[i]->u.function;
+				        &p->commands[i]->u.function;
 				if (cmdf->free_func)
 					(*cmdf->free_func) (cmdf->data);
 			}
@@ -1738,9 +1744,8 @@ int pipeline_wait_all (pipeline *p, int **statuses, int *n_statuses)
 					ret = 128 + WTERMSIG (status);
 				else if (WEXITSTATUS (status))
 					ret = WEXITSTATUS (status);
-			} else if (!ret &&
-				   (WIFSIGNALED (status) ||
-				    WEXITSTATUS (status)))
+			} else if (!ret && (WIFSIGNALED (status) ||
+			                    WEXITSTATUS (status)))
 				ret = 127;
 		}
 
@@ -1825,8 +1830,8 @@ void pipeline_pump (pipeline *p, ...)
 	int argc, i, j;
 	pipeline *arg, **pieces;
 	size_t *pos;
-	int *known_source, *blocking_in, *blocking_out,
-	    *dying_source, *waiting, *write_error;
+	int *known_source, *blocking_in, *blocking_out, *dying_source,
+	        *waiting, *write_error;
 	struct sigaction sa, osa_sigpipe;
 
 	/* Count pipelines and allocate space for arrays. */
@@ -1985,7 +1990,8 @@ void pipeline_pump (pipeline *p, ...)
 					assert (pieces[i]->statuses);
 					if (pieces[i]->statuses[last] != -1) {
 						debug ("source pipeline %d "
-						       "died\n", i);
+						       "died\n",
+						       i);
 						dying_source[i] = 1;
 					}
 				}
@@ -1994,7 +2000,8 @@ void pipeline_pump (pipeline *p, ...)
 					assert (pieces[i]->statuses);
 					if (pieces[i]->statuses[0] != -1) {
 						debug ("sink pipeline %d "
-						       "died\n", i);
+						       "died\n",
+						       i);
 						close (pieces[i]->infd);
 						pieces[i]->infd = -1;
 					}
@@ -2021,7 +2028,8 @@ void pipeline_pump (pipeline *p, ...)
 				 * from now on.
 				 */
 				debug ("source pipeline %d returned error "
-				       "or EOF\n", i);
+				       "or EOF\n",
+				       i);
 				close (pieces[i]->outfd);
 				pieces[i]->outfd = -1;
 			} else
@@ -2071,8 +2079,8 @@ void pipeline_pump (pipeline *p, ...)
 			/* write as much of it as will fit to the sink */
 			for (;;) {
 				w = safe_write (pieces[i]->infd,
-						block + pos[i],
-						peek_size - pos[i]);
+				                block + pos[i],
+				                peek_size - pos[i]);
 				if (w != SAFE_WRITE_ERROR)
 					break;
 				if (errno == EAGAIN) {
@@ -2121,7 +2129,7 @@ void pipeline_pump (pipeline *p, ...)
 				if (pieces[i]->source == pieces[j]->source)
 					pos[j] -= minpos;
 			}
-next_sink:		;
+next_sink:;
 		}
 	}
 
@@ -2260,7 +2268,7 @@ static const char *get_line (pipeline *p, size_t *outlen)
 	if (outlen)
 		*outlen = 0;
 
-	for (i = 0; ; ++i) {
+	for (i = 0;; ++i) {
 		size_t len = block * (i + 1);
 
 		buffer = get_block (p, &len, 1);
@@ -2272,7 +2280,7 @@ static const char *get_line (pipeline *p, size_t *outlen)
 			end = buffer + len - 1;
 		else
 			end = memchr (buffer + previous_len, '\n',
-				      len - previous_len);
+			              len - previous_len);
 		if (end)
 			break;
 		previous_len = len;

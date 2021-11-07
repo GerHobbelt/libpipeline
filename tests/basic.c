@@ -23,11 +23,11 @@
 #  include "config.h"
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "dirname.h"
@@ -56,26 +56,26 @@ START_TEST (test_basic_args)
 	p = pipeline_new_command_args ("echo", "foo", (void *) 0);
 	pipeline_want_out (p, -1);
 	ck_assert_msg (pipecmd_get_nargs (pipeline_get_command (p, 0)) == 2,
-		       "Number of arguments != 2");
+	               "Number of arguments != 2");
 	pipeline_start (p);
 	line = pipeline_readline (p);
 	ck_assert_ptr_ne (line, NULL);
 	ck_assert_msg (!strcmp (line, "foo\n"),
-		       "Incorrect output from 'echo foo': '%s'", line);
+	               "Incorrect output from 'echo foo': '%s'", line);
 	ck_assert_msg (pipeline_wait (p) == 0, "'echo foo' did not return 0");
 	pipeline_free (p);
 
 	p = pipeline_new_command_args ("echo", "foo", "bar", (void *) 0);
 	pipeline_want_out (p, -1);
 	ck_assert_msg (pipecmd_get_nargs (pipeline_get_command (p, 0)) == 3,
-		       "Number of arguments != 3");
+	               "Number of arguments != 3");
 	pipeline_start (p);
 	line = pipeline_readline (p);
 	ck_assert_ptr_ne (line, NULL);
 	ck_assert_msg (!strcmp (line, "foo bar\n"),
-		       "Incorrect output from 'echo foo bar': '%s'", line);
+	               "Incorrect output from 'echo foo bar': '%s'", line);
 	ck_assert_msg (pipeline_wait (p) == 0,
-		       "'echo foo bar' did not return 0");
+	               "'echo foo bar' did not return 0");
 	pipeline_free (p);
 }
 END_TEST
@@ -93,10 +93,11 @@ START_TEST (test_basic_pipeline)
 	line = pipeline_readline (p);
 	ck_assert_ptr_ne (line, NULL);
 	ck_assert_msg (!strcmp (line, "bar\n"),
-		       "Incorrect output from 'echo foo | sed -e s/foo/bar/': "
-		       "'%s'", line);
+	               "Incorrect output from 'echo foo | sed -e s/foo/bar/': "
+	               "'%s'",
+	               line);
 	ck_assert_msg (pipeline_wait (p) == 0,
-		       "'echo foo | sed -e 's/foo/bar/' did not return 0");
+	               "'echo foo | sed -e 's/foo/bar/' did not return 0");
 	pipeline_free (p);
 }
 END_TEST
@@ -162,7 +163,7 @@ START_TEST (test_basic_clearenv)
 	setenv ("TEST3", "foo", 1);
 
 	p = pipeline_new_command_args (SHELL, "-c", "echo $TEST3; echo $TEST4",
-				       (void *) 0);
+	                               (void *) 0);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
 	ck_assert_str_eq (pipeline_readline (p), "foo\n");
@@ -303,10 +304,10 @@ static Suite *basic_suite (void)
 	TEST_CASE (s, basic, unsetenv);
 	TEST_CASE (s, basic, clearenv);
 	TEST_CASE (s, basic, pre_exec);
-	TEST_CASE_WITH_FIXTURE (s, basic, chdir,
-				temp_dir_setup, temp_dir_teardown);
-	TEST_CASE_WITH_FIXTURE (s, basic, fchdir,
-				temp_dir_setup, temp_dir_teardown);
+	TEST_CASE_WITH_FIXTURE (s, basic, chdir, temp_dir_setup,
+	                        temp_dir_teardown);
+	TEST_CASE_WITH_FIXTURE (s, basic, fchdir, temp_dir_setup,
+	                        temp_dir_teardown);
 	TEST_CASE (s, basic, sequence);
 
 	return s;
