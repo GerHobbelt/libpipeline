@@ -40,6 +40,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "attribute.h"
 #include "dirname.h"
 #include "full-write.h"
 #include "safe-read.h"
@@ -549,7 +550,7 @@ void pipecmd_argstr (pipecmd *cmd, const char *argstr)
 	}
 }
 
-int _GL_ATTRIBUTE_PURE pipecmd_get_nargs (pipecmd *cmd)
+int ATTRIBUTE_PURE pipecmd_get_nargs (pipecmd *cmd)
 {
 	struct pipecmd_process *cmdp;
 
@@ -1168,12 +1169,12 @@ void pipeline_commands (pipeline *p, ...)
 	va_end (cmdv);
 }
 
-int _GL_ATTRIBUTE_PURE pipeline_get_ncommands (pipeline *p)
+int ATTRIBUTE_PURE pipeline_get_ncommands (pipeline *p)
 {
 	return p->ncommands;
 }
 
-pipecmd *_GL_ATTRIBUTE_PURE pipeline_get_command (pipeline *p, int n)
+pipecmd *ATTRIBUTE_PURE pipeline_get_command (pipeline *p, int n)
 {
 	if (n < 0 || n >= p->ncommands)
 		return NULL;
@@ -1190,7 +1191,7 @@ pipecmd *pipeline_set_command (pipeline *p, int n, pipecmd *cmd)
 	return prev;
 }
 
-pid_t _GL_ATTRIBUTE_PURE pipeline_get_pid (pipeline *p, int n)
+pid_t ATTRIBUTE_PURE pipeline_get_pid (pipeline *p, int n)
 {
 	assert (p->pids); /* pipeline started */
 	if (n < 0 || n >= p->ncommands)
@@ -2233,7 +2234,7 @@ const char *pipeline_peek (pipeline *p, size_t *len)
 	return get_block (p, len, 1);
 }
 
-size_t _GL_ATTRIBUTE_PURE pipeline_peek_size (pipeline *p)
+size_t ATTRIBUTE_PURE pipeline_peek_size (pipeline *p)
 {
 	if (!p->buffer)
 		return 0;
