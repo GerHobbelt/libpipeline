@@ -24,7 +24,7 @@ if RUN_TESTS
 SUBDIRS += tests
 endif
 
-dist_noinst_DATA = NEWS
+dist_noinst_DATA = NEWS.md
 
 EXTRA_DIST = \
 	.gitignore \
