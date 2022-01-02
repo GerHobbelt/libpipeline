@@ -1,5 +1,5 @@
 default:
-  image: gcc
+  image: debian:unstable
 
 stages:
   - bootstrap
@@ -12,7 +12,7 @@ pre-commit:
     XDG_CACHE_HOME: "$CI_PROJECT_DIR/.cache"
   before_script:
     - apt -qq update
-    - apt -y -qq install pre-commit
+    - apt -y -qq install git pre-commit
   script:
     - pre-commit run -a
   cache:
@@ -24,7 +24,7 @@ bootstrap:
   stage: bootstrap
   before_script:
     - apt -qq update
-    - apt -y -qq install autoconf automake autopoint libtool
+    - apt -y -qq install autoconf automake autopoint git libtool pkg-config
   script:
     - if test -d gnulib-src; then git -C gnulib-src pull; else git clone git://git.sv.gnu.org/gnulib gnulib-src; fi
     - rm -rf bootstrapped
