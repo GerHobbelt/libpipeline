@@ -1,6 +1,9 @@
 default:
   image: debian:unstable
 
+variables:
+  GIT_DEPTH: 0
+
 stages:
   - bootstrap
   - build
@@ -42,10 +45,13 @@ build-distcheck:
   stage: build
   before_script:
     - apt -qq update
-    - apt -y -qq install build-essential pkg-config check
+    - apt -y -qq install build-essential check git pkg-config
   script:
     - (cd bootstrapped && ./configure)
     - make -C bootstrapped distcheck V=1
+  artifacts:
+    paths:
+      - "bootstrapped/*.tar.gz"
 
 build-out-of-tree:
   stage: build
