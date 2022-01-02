@@ -1,10 +1,10 @@
 #! /bin/sh
 # Print a version string.
-scriptversion=2020-11-18.17; # UTC
+scriptversion=2021-04-11.09; # UTC
 
 # Bootstrap this package from checked-out sources.
 
-# Copyright (C) 2003-2020 Free Software Foundation, Inc.
+# Copyright (C) 2003-2021 Free Software Foundation, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ PERL="${PERL-perl}"
 
 me=$0
 
-default_gnulib_url=git://git.sv.gnu.org/gnulib
+default_gnulib_url=https://git.savannah.gnu.org/git/gnulib.git
 
 usage() {
   cat <<EOF
@@ -114,6 +114,12 @@ appropriate revision, or set \$GNULIB_REVISION (and if necessary
 Running without arguments will suffice in most cases.
 EOF
 }
+
+copyright_year=`echo "$scriptversion" | sed -e 's/[^0-9].*//'`
+copyright="Copyright (C) ${copyright_year} Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law."
 
 # warnf_ FORMAT-STRING ARG1...
 warnf_ ()
@@ -184,7 +190,7 @@ po_download_command_format=\
  https://translationproject.org/latest/%s/"
 
 # Prefer a non-empty tarname (4th argument of AC_INIT if given), else
-# fall back to the package name (1st argument with munging)
+# fall back to the package name (1st argument with munging).
 extract_package_name='
   /^AC_INIT(\[*/{
      s///
@@ -201,8 +207,11 @@ extract_package_name='
      p
   }
 '
-package=$(sed -n "$extract_package_name" configure.ac) \
-  || die 'cannot find package name in configure.ac'
+package=$(${AUTOCONF:-autoconf} --trace AC_INIT:\$4 configure.ac 2>/dev/null)
+if test -z "$package"; then
+  package=$(sed -n "$extract_package_name" configure.ac) \
+      || die 'cannot find package name in configure.ac'
+fi
 gnulib_name=lib$package
 
 build_aux=build-aux
@@ -304,62 +313,6 @@ find_tool ()
   eval "export $find_tool_envvar"
 }
 
-# Override the default configuration, if necessary.
-# Make sure that bootstrap.conf is sourced from the current directory
-# if we were invoked as "sh bootstrap".
-case "$0" in
-  */*) test -r "$0.conf" && . "$0.conf" ;;
-  *) test -r "$0.conf" && . ./"$0.conf" ;;
-esac
-
-if test "$vc_ignore" = auto; then
-  vc_ignore=
-  test -d .git && vc_ignore=.gitignore
-  test -d CVS && vc_ignore="$vc_ignore .cvsignore"
-fi
-
-if test x"$gnulib_modules$gnulib_files$gnulib_extra_files" = x; then
-  use_gnulib=false
-else
-  use_gnulib=true
-fi
-
-# Translate configuration into internal form.
-
-# Parse options.
-
-for option
-do
-  case $option in
-  --help)
-    usage
-    exit;;
-  --gnulib-srcdir=*)
-    GNULIB_SRCDIR=${option#--gnulib-srcdir=};;
-  --skip-po)
-    SKIP_PO=t;;
-  --force)
-    checkout_only_file=;;
-  --copy)
-    copy=true;;
-  --bootstrap-sync)
-    bootstrap_sync=true;;
-  --no-bootstrap-sync)
-    bootstrap_sync=false;;
-  --no-git)
-    use_git=false;;
-  *)
-    bootstrap_option_hook $option || die "$option: unknown option";;
-  esac
-done
-
-$use_git || test -d "$GNULIB_SRCDIR" \
-  || die "Error: --no-git requires --gnulib-srcdir"
-
-if test -n "$checkout_only_file" && test ! -r "$checkout_only_file"; then
-  die "Bootstrapping from a non-checked-out distribution is risky."
-fi
-
 # Strip blank and comment lines to leave significant entries.
 gitignore_entries() {
   sed '/^#/d; /^$/d' "$@"
@@ -400,6 +353,137 @@ insert_vc_ignore() {
   esac
   insert_if_absent "$vc_ignore_file" "$pattern"
 }
+
+symlink_to_dir()
+{
+  src=$1/$2
+  dst=${3-$2}
+
+  test -f "$src" && {
+
+    # If the destination directory doesn't exist, create it.
+    # This is required at least for "lib/uniwidth/cjk.h".
+    dst_dir=$(dirname "$dst")
+    if ! test -d "$dst_dir"; then
+      mkdir -p "$dst_dir"
+
+      # If we've just created a directory like lib/uniwidth,
+      # tell version control system(s) it's ignorable.
+      # FIXME: for now, this does only one level
+      parent=$(dirname "$dst_dir")
+      for dot_ig in x $vc_ignore; do
+        test $dot_ig = x && continue
+        ig=$parent/$dot_ig
+        insert_vc_ignore $ig "${dst_dir##*/}"
+      done
+    fi
+
+    if $copy; then
+      {
+        test ! -h "$dst" || {
+          echo "$me: rm -f $dst" &&
+          rm -f "$dst"
+        }
+      } &&
+      test -f "$dst" &&
+      cmp -s "$src" "$dst" || {
+        echo "$me: cp -fp $src $dst" &&
+        cp -fp "$src" "$dst"
+      }
+    else
+      # Leave any existing symlink alone, if it already points to the source,
+      # so that broken build tools that care about symlink times
+      # aren't confused into doing unnecessary builds.  Conversely, if the
+      # existing symlink's timestamp is older than the source, make it afresh,
+      # so that broken tools aren't confused into skipping needed builds.  See
+      # <https://lists.gnu.org/r/bug-gnulib/2011-05/msg00326.html>.
+      test -h "$dst" &&
+      src_ls=$(ls -diL "$src" 2>/dev/null) && set $src_ls && src_i=$1 &&
+      dst_ls=$(ls -diL "$dst" 2>/dev/null) && set $dst_ls && dst_i=$1 &&
+      test "$src_i" = "$dst_i" &&
+      both_ls=$(ls -dt "$src" "$dst") &&
+      test "X$both_ls" = "X$dst$nl$src" || {
+        dot_dots=
+        case $src in
+        /*) ;;
+        *)
+          case /$dst/ in
+          *//* | */../* | */./* | /*/*/*/*/*/)
+             die "invalid symlink calculation: $src -> $dst";;
+          /*/*/*/*/)    dot_dots=../../../;;
+          /*/*/*/)      dot_dots=../../;;
+          /*/*/)        dot_dots=../;;
+          esac;;
+        esac
+
+        echo "$me: ln -fs $dot_dots$src $dst" &&
+        ln -fs "$dot_dots$src" "$dst"
+      }
+    fi
+  }
+}
+
+# Override the default configuration, if necessary.
+# Make sure that bootstrap.conf is sourced from the current directory
+# if we were invoked as "sh bootstrap".
+case "$0" in
+  */*) test -r "$0.conf" && . "$0.conf" ;;
+  *) test -r "$0.conf" && . ./"$0.conf" ;;
+esac
+
+if test "$vc_ignore" = auto; then
+  vc_ignore=
+  test -d .git && vc_ignore=.gitignore
+  test -d CVS && vc_ignore="$vc_ignore .cvsignore"
+fi
+
+if test x"$gnulib_modules$gnulib_files$gnulib_extra_files" = x; then
+  use_gnulib=false
+else
+  use_gnulib=true
+fi
+
+# Translate configuration into internal form.
+
+# Parse options.
+
+for option
+do
+  case $option in
+  --help)
+    usage
+    exit;;
+  --version)
+    set -e
+    echo "bootstrap $scriptversion"
+    echo "$copyright"
+    exit 0
+    ;;
+  --gnulib-srcdir=*)
+    GNULIB_SRCDIR=${option#--gnulib-srcdir=};;
+  --skip-po)
+    SKIP_PO=t;;
+  --force)
+    checkout_only_file=;;
+  --copy)
+    copy=true;;
+  --bootstrap-sync)
+    bootstrap_sync=true;;
+  --no-bootstrap-sync)
+    bootstrap_sync=false;;
+  --no-git)
+    use_git=false;;
+  *)
+    bootstrap_option_hook $option || die "$option: unknown option";;
+  esac
+done
+
+$use_git || test -d "$GNULIB_SRCDIR" \
+  || die "Error: --no-git requires --gnulib-srcdir"
+
+if test -n "$checkout_only_file" && test ! -r "$checkout_only_file"; then
+  die "Bootstrapping from a non-checked-out distribution is risky."
+fi
 
 # Die if there is no AC_CONFIG_AUX_DIR($build_aux) line in configure.ac.
 found_aux_dir=no
@@ -797,75 +881,6 @@ case $SKIP_PO in
     update_po_files runtime-po $package-runtime || exit
   fi;;
 esac
-
-symlink_to_dir()
-{
-  src=$1/$2
-  dst=${3-$2}
-
-  test -f "$src" && {
-
-    # If the destination directory doesn't exist, create it.
-    # This is required at least for "lib/uniwidth/cjk.h".
-    dst_dir=$(dirname "$dst")
-    if ! test -d "$dst_dir"; then
-      mkdir -p "$dst_dir"
-
-      # If we've just created a directory like lib/uniwidth,
-      # tell version control system(s) it's ignorable.
-      # FIXME: for now, this does only one level
-      parent=$(dirname "$dst_dir")
-      for dot_ig in x $vc_ignore; do
-        test $dot_ig = x && continue
-        ig=$parent/$dot_ig
-        insert_vc_ignore $ig "${dst_dir##*/}"
-      done
-    fi
-
-    if $copy; then
-      {
-        test ! -h "$dst" || {
-          echo "$me: rm -f $dst" &&
-          rm -f "$dst"
-        }
-      } &&
-      test -f "$dst" &&
-      cmp -s "$src" "$dst" || {
-        echo "$me: cp -fp $src $dst" &&
-        cp -fp "$src" "$dst"
-      }
-    else
-      # Leave any existing symlink alone, if it already points to the source,
-      # so that broken build tools that care about symlink times
-      # aren't confused into doing unnecessary builds.  Conversely, if the
-      # existing symlink's timestamp is older than the source, make it afresh,
-      # so that broken tools aren't confused into skipping needed builds.  See
-      # <https://lists.gnu.org/r/bug-gnulib/2011-05/msg00326.html>.
-      test -h "$dst" &&
-      src_ls=$(ls -diL "$src" 2>/dev/null) && set $src_ls && src_i=$1 &&
-      dst_ls=$(ls -diL "$dst" 2>/dev/null) && set $dst_ls && dst_i=$1 &&
-      test "$src_i" = "$dst_i" &&
-      both_ls=$(ls -dt "$src" "$dst") &&
-      test "X$both_ls" = "X$dst$nl$src" || {
-        dot_dots=
-        case $src in
-        /*) ;;
-        *)
-          case /$dst/ in
-          *//* | */../* | */./* | /*/*/*/*/*/)
-             die "invalid symlink calculation: $src -> $dst";;
-          /*/*/*/*/)    dot_dots=../../../;;
-          /*/*/*/)      dot_dots=../../;;
-          /*/*/)        dot_dots=../;;
-          esac;;
-        esac
-
-        echo "$me: ln -fs $dot_dots$src $dst" &&
-        ln -fs "$dot_dots$src" "$dst"
-      }
-    fi
-  }
-}
 
 version_controlled_file() {
   parent=$1
