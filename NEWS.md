@@ -1,5 +1,5 @@
-libpipeline 1.5.5
-=================
+libpipeline 1.5.5 (3 January 2022)
+==================================
 
  * Move release process to GitLab CI.
 
