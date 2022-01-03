@@ -30,8 +30,7 @@ EXTRA_DIST = \
 	.gitignore \
 	ChangeLog-2013 \
 	bootstrap \
-	bootstrap.conf \
-	release.sh
+	bootstrap.conf
 
 # These macro files are imported by gnulib-tool, but at present not used. We
 # include them in the distribution anyway for maximum consistency.
