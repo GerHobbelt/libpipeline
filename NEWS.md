@@ -1,3 +1,8 @@
+libpipeline 1.5.5
+=================
+
+ * Move release process to GitLab CI.
+
 libpipeline 1.5.4 (7 November 2021)
 ===================================
 
