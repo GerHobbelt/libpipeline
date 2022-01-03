@@ -7,7 +7,8 @@ variables:
 stages:
   - bootstrap
   - build
-  - test
+  - upload
+  - release
 
 pre-commit:
   stage: .pre
@@ -62,3 +63,37 @@ build-out-of-tree:
     - mkdir -p bootstrapped/obj
     - (cd bootstrapped/obj && ../configure)
     - make -C bootstrapped/obj check V=1
+
+upload:
+  stage: upload
+  image: curlimages/curl:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "bootstrapped/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.gz" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/${CI_COMMIT_TAG}/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.gz"
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  # Prepare description.  The maintainer will need to download the tarball,
+  # sign it, and reupload the tarball and its signature to Savannah.
+  script:
+    - |
+      echo "Releasing ${CI_PROJECT_NAME} ${CI_COMMIT_TAG}."
+      (echo "Changes"
+       echo "-------"
+       echo
+       echo "$(tail -n+4 bootstrapped/NEWS.md | sed "/^${CI_PROJECT_NAME} /,\$d")"
+       echo
+       echo "Download (GPG key 0x393587D97D86500B)"
+       echo "-------------------------------------"
+       echo
+       echo " * https://download.savannah.nongnu.org/releases/${CI_PROJECT_NAME}/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.gz"
+       printf %s " * https://download.savannah.nongnu.org/releases/${CI_PROJECT_NAME}/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.gz.asc"
+       ) >description.md
+  release:
+    tag_name: $CI_COMMIT_TAG
+    description: './description.md'
