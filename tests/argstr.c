@@ -72,6 +72,19 @@ START_TEST (test_argstr_exec)
 }
 END_TEST
 
+START_TEST (test_argstr_excess_whitespace)
+{
+	pipecmd *cmd;
+
+	cmd = pipecmd_new_argstr (" /bin/foo \tbar\t");
+	ck_assert_str_eq (cmd->name, "/bin/foo");
+	ck_assert_int_eq (cmd->u.process.argc, 2);
+	ck_assert_str_eq (cmd->u.process.argv[0], "foo");
+	ck_assert_str_eq (cmd->u.process.argv[1], "bar");
+	pipecmd_free (cmd);
+}
+END_TEST
+
 static Suite *argstr_suite (void)
 {
 	Suite *s = suite_create ("Argstr");
@@ -79,6 +92,7 @@ static Suite *argstr_suite (void)
 	TEST_CASE (s, argstr, trivial);
 	TEST_CASE (s, argstr, torture);
 	TEST_CASE (s, argstr, exec);
+	TEST_CASE (s, argstr, excess_whitespace);
 
 	return s;
 }

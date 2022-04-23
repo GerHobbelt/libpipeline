@@ -1,3 +1,9 @@
+libpipeline 1.5.6
+=================
+
+ * Fix handling of leading whitespace in `pipecmd_new_argstr` and
+   `pipecmd_argstr`.
+
 libpipeline 1.5.5 (3 January 2022)
 ==================================
 

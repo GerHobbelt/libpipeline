@@ -174,7 +174,7 @@ pipecmd *pipecmd_new_args (const char *name, ...)
 static char *argstr_get_word (const char **argstr)
 {
 	char *out = NULL;
-	const char *litstart = *argstr;
+	const char *litstart;
 	enum
 	{
 		NONE,
@@ -182,6 +182,11 @@ static char *argstr_get_word (const char **argstr)
 		DOUBLE
 	} quotemode = NONE;
 
+	/* Skip over any leading whitespace. */
+	while (**argstr == ' ' || **argstr == '\t')
+		++*argstr;
+
+	litstart = *argstr;
 	while (**argstr) {
 		char backslashed[2];
 
@@ -214,10 +219,7 @@ static char *argstr_get_word (const char **argstr)
 		switch (**argstr) {
 			case ' ':
 			case '\t':
-				/* End of word; skip over extra whitespace. */
-				while (*++*argstr)
-					if (!strchr (" \t", **argstr))
-						break;
+				/* End of word. */
 				return out;
 
 			case '\'':
