@@ -30,6 +30,8 @@ libpipeline_la_CPPFLAGS = \
 libpipeline_la_SOURCES = \
 	appendstr.c \
 	debug.c \
+	fatal.c \
+	fatal.h \
 	pipeline.c \
 	pipeline-private.h
 

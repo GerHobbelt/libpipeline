@@ -50,6 +50,7 @@
 #include "xvasprintf.h"
 
 #include "error.h"
+#include "fatal.h"
 #include "pipeline-private.h"
 #include "pipeline.h"
 
@@ -275,7 +276,7 @@ pipecmd *pipecmd_new_argstr (const char *argstr)
 
 	arg = argstr_get_word (&argstr);
 	if (!arg)
-		error (FATAL, 0, "badly formed configuration directive: '%s'",
+		fatal (0, "badly formed configuration directive: '%s'",
 		       argstr);
 	if (!strcmp (arg, "exec")) {
 		/* Some old configuration files have "exec command" rather
@@ -287,8 +288,7 @@ pipecmd *pipecmd_new_argstr (const char *argstr)
 		free (arg);
 		arg = argstr_get_word (&argstr);
 		if (!arg)
-			error (FATAL, 0,
-			       "badly formed configuration directive: '%s'",
+			fatal (0, "badly formed configuration directive: '%s'",
 			       argstr);
 	}
 	cmd = pipecmd_new (arg);
@@ -860,8 +860,7 @@ void pipecmd_exec (pipecmd *cmd)
 			sigemptyset (&sa.sa_mask);
 			sa.sa_flags = 0;
 			if (sigaction (SIGCHLD, &sa, NULL) == -1)
-				error (FATAL, errno,
-				       "can't install SIGCHLD handler");
+				fatal (errno, "can't install SIGCHLD handler");
 
 			for (i = 0; i < cmds->ncommands; ++i) {
 				pipecmd *child = cmds->commands[i];
@@ -869,7 +868,7 @@ void pipecmd_exec (pipecmd *cmd)
 				int status;
 
 				if (pid < 0)
-					error (FATAL, errno, "fork failed");
+					fatal (errno, "fork failed");
 				if (pid == 0)
 					pipecmd_exec (child);
 				debug ("Started \"%s\", pid %d\n", child->name,
@@ -878,7 +877,7 @@ void pipecmd_exec (pipecmd *cmd)
 				while (waitpid (pid, &status, 0) < 0) {
 					if (errno == EINTR)
 						continue;
-					error (FATAL, errno, "waitpid failed");
+					fatal (errno, "waitpid failed");
 				}
 
 				debug ("  \"%s\" (%d) -> %d\n", child->name,
@@ -1410,7 +1409,7 @@ static void pipeline_install_sigchld (void)
 	act.sa_flags |= SA_RESTART;
 #endif
 	if (sigaction (SIGCHLD, &act, NULL) == -1)
-		error (FATAL, errno, "can't install SIGCHLD handler");
+		fatal (errno, "can't install SIGCHLD handler");
 
 	installed = 1;
 }
@@ -1458,9 +1457,9 @@ void pipeline_start (pipeline *p)
 		sigemptyset (&sa.sa_mask);
 		sa.sa_flags = 0;
 		if (sigaction (SIGINT, &sa, &osa_sigint) < 0)
-			error (FATAL, errno, "Couldn't ignore SIGINT");
+			fatal (errno, "Couldn't ignore SIGINT");
 		if (sigaction (SIGQUIT, &sa, &osa_sigquit) < 0)
-			error (FATAL, errno, "Couldn't ignore SIGQUIT");
+			fatal (errno, "Couldn't ignore SIGQUIT");
 	}
 
 	/* Add to the table of active pipelines, so that signal handlers
@@ -1506,7 +1505,7 @@ void pipeline_start (pipeline *p)
 
 	if (p->redirect_in == REDIRECT_FD && p->want_in < 0) {
 		if (pipe (infd) < 0)
-			error (FATAL, errno, "pipe failed");
+			fatal (errno, "pipe failed");
 		last_input = infd[0];
 		p->infd = infd[1];
 	} else if (p->redirect_in == REDIRECT_FD)
@@ -1515,7 +1514,7 @@ void pipeline_start (pipeline *p)
 		assert (p->want_infile);
 		last_input = open (p->want_infile, O_RDONLY);
 		if (last_input < 0)
-			error (FATAL, errno, "can't open %s", p->want_infile);
+			fatal (errno, "can't open %s", p->want_infile);
 	}
 
 	for (i = 0; i < p->ncommands; i++) {
@@ -1526,7 +1525,7 @@ void pipeline_start (pipeline *p)
 		if (i != p->ncommands - 1 ||
 		    (p->redirect_out == REDIRECT_FD && p->want_out < 0)) {
 			if (pipe (pdes) < 0)
-				error (FATAL, errno, "pipe failed");
+				fatal (errno, "pipe failed");
 			if (i == p->ncommands - 1)
 				p->outfd = pdes[0];
 			output_read = pdes[0];
@@ -1540,7 +1539,7 @@ void pipeline_start (pipeline *p)
 				        p->want_outfile,
 				        O_WRONLY | O_CREAT | O_TRUNC, 0666);
 				if (output_write < 0)
-					error (FATAL, errno, "can't open %s",
+					fatal (errno, "can't open %s",
 					       p->want_outfile);
 			}
 		}
@@ -1557,7 +1556,7 @@ void pipeline_start (pipeline *p)
 
 		pid = fork ();
 		if (pid < 0)
-			error (FATAL, errno, "fork failed");
+			fatal (errno, "fork failed");
 		if (pid == 0) {
 			/* child */
 			if (post_fork)
@@ -1566,23 +1565,23 @@ void pipeline_start (pipeline *p)
 			/* input, reading side */
 			if (last_input != -1) {
 				if (dup2 (last_input, 0) < 0)
-					error (FATAL, errno, "dup2 failed");
+					fatal (errno, "dup2 failed");
 				if (close (last_input) < 0)
-					error (FATAL, errno, "close failed");
+					fatal (errno, "close failed");
 			}
 
 			/* output, writing side */
 			if (output_write != -1) {
 				if (dup2 (output_write, 1) < 0)
-					error (FATAL, errno, "dup2 failed");
+					fatal (errno, "dup2 failed");
 				if (close (output_write) < 0)
-					error (FATAL, errno, "close failed");
+					fatal (errno, "close failed");
 			}
 
 			/* output, reading side */
 			if (output_read != -1)
 				if (close (output_read))
-					error (FATAL, errno, "close failed");
+					fatal (errno, "close failed");
 
 			/* input from first command, writing side; must close
 			 * it in every child because it has to be created
@@ -1590,7 +1589,7 @@ void pipeline_start (pipeline *p)
 			 */
 			if (p->infd != -1)
 				if (close (p->infd))
-					error (FATAL, errno, "close failed");
+					fatal (errno, "close failed");
 
 			/* inputs and outputs from other active pipelines */
 			for (j = 0; j < n_active_pipelines; ++j) {
@@ -1617,11 +1616,11 @@ void pipeline_start (pipeline *p)
 		/* in the parent */
 		if (last_input != -1) {
 			if (close (last_input) < 0)
-				error (FATAL, errno, "close failed");
+				fatal (errno, "close failed");
 		}
 		if (output_write != -1) {
 			if (close (output_write) < 0)
-				error (FATAL, errno, "close failed");
+				fatal (errno, "close failed");
 		}
 		if (output_read != -1)
 			last_input = output_read;
@@ -1761,7 +1760,7 @@ int pipeline_wait_all (pipeline *p, int **statuses, int *n_statuses)
 			/* Eh? The pipeline was allegedly still running, so
 			 * we shouldn't have got ECHILD.
 			 */
-			error (FATAL, errno, "waitpid failed");
+			fatal (errno, "waitpid failed");
 	}
 
 	queue_sigchld = 0;
@@ -2010,7 +2009,7 @@ void pipeline_pump (pipeline *p, ...)
 			}
 			continue;
 		} else if (ret < 0)
-			error (FATAL, errno, "select");
+			fatal (errno, "select");
 
 		/* Read a block of data from each available source pipeline. */
 		for (i = 0; i < argc; ++i) {
@@ -2158,7 +2157,7 @@ next_sink:;
 
 	for (i = 0; i < argc; ++i) {
 		if (write_error[i])
-			error (FATAL, write_error[i], "write to sink %d", i);
+			fatal (write_error[i], "write to sink %d", i);
 	}
 
 	free (write_error);
