@@ -175,8 +175,7 @@ static char *argstr_get_word (const char **argstr)
 {
 	char *out = NULL;
 	const char *litstart;
-	enum
-	{
+	enum {
 		NONE,
 		SINGLE,
 		DOUBLE

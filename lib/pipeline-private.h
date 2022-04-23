@@ -41,8 +41,7 @@ extern void debug (const char *message, ...)
 extern int clearenv (void);
 #endif
 
-enum pipecmd_tag
-{
+enum pipecmd_tag {
 	PIPECMD_PROCESS,
 	PIPECMD_FUNCTION,
 	PIPECMD_SEQUENCE
@@ -85,8 +84,7 @@ struct pipecmd {
 	} u;
 };
 
-enum pipeline_redirect
-{
+enum pipeline_redirect {
 	REDIRECT_NONE,
 	REDIRECT_FD,
 	REDIRECT_FILE_NAME
