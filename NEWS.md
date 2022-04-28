@@ -1,3 +1,8 @@
+libpipeline 1.5.7
+=================
+
+ * Add notes to libpipeline(3) of when functions were added.
+
 libpipeline 1.5.6 (24 April 2022)
 =================================
 
