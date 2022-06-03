@@ -1,0 +1,133 @@
+body { background-color: #FFFFB0; color: #000000 }
+a { border: 0; }
+a:link { color: #0000FF; }
+a:visited { color: #800080; }
+img { border: 0; }
+h1 { font-family: sans-serif;
+     font-size: 24pt;
+     color: #000080; }
+h1 a { color: #0000FF; }
+h2 { font-family: sans-serif;
+     font-size: 20pt;
+     color: #000080; }
+h2 a { color: #0000FF; }
+h3 { font-family: sans-serif;
+     font-size: 16pt;
+     color: #000080; }
+h3 a { color: #0000FF; }
+address { font-family: sans-serif;
+          font-size: 10pt; }
+.center { text-align: center; }
+.clearright { clear: right; }
+.logo { float: right;
+        margin-left: 5px; }
+.pre { white-space: pre; }
+.urgent { color: #FF0000;
+          font-style: italic; }
+table { border-width: 0; }
+table.tdtop td {
+  vertical-align: top;
+}
+
+/* drop caps */
+
+p.illuminated:first-letter {
+  font-size: 300%;
+  font-weight: bold;
+}
+
+/* frame implementation */
+
+#main {
+  position: absolute;
+  width: auto;
+  height: auto;
+  top: 0;
+  bottom: auto;
+  left: 160px;
+  right: 0;
+}
+#menubar {
+  position: fixed;
+  width: 150px;
+  height: auto;
+  top: 10px;
+  bottom: auto;
+  left: 10px;
+  right: auto;
+}
+#submain {
+  position: absolute;
+  width: auto;
+  height: auto;
+  top: 0;
+  bottom: 40px;
+  left: 160px;
+  right: 0;
+  overflow: scroll;
+}
+#submenubar {
+  position: fixed;
+  width: auto;
+  height: 30px;
+  top: auto;
+  bottom: 0;
+  left: 160px;
+  right: 0;
+  text-align: center;
+}
+
+.navigation {
+  font: bold 100% Arial, Helvetica, sans-serif;
+}
+
+.navigation {
+  text-align: center;
+}
+
+.navigation a {
+  text-decoration: none;
+}
+
+.navigation a:link {
+  color: blue;
+}
+
+.navigation a:visited {
+  color: purple;
+}
+
+.navigation a:hover {
+  background-color: #D0D090;
+}
+
+.navigation a:hover:link {
+  color: #000088;
+}
+
+.navigation a:hover:visited {
+  color: #660066;
+}
+
+#menubar.navigation {
+  text-align: left;
+}
+
+#menubar.navigation p {
+  margin: 8px 4px 8px 2px;
+}
+
+#menubar.navigation a {
+  display: block;
+}
+
+#menubar.navigation .subnav {
+  margin: 2px 2px 12px 12px;
+  font-size: 75%;
+}
+
+#menubar.navigation .subnav a {
+  display: inline;
+}
+
+/* vim: set sts=2 sw=2: */

@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<title>libpipeline - pipeline manipulation library</title>
+<link rel="stylesheet" href="standard.css" type="text/css" />
+<link rel="stylesheet" href="white.css" type="text/css" />
+<link rel="vcs-git" href="git://git.sv.gnu.org/libpipeline.git" title="libpipeline git repository" />
+<link rel="vcs-git" href="ssh://git.sv.gnu.org/srv/git/libpipeline.git" title="libpipeline git repository" />
+<link rel="vcs-git" href="http://git.savannah.gnu.org/r/libpipeline.git" title="libpipeline git repository" />
+</head>
+
+<body>
+
+<h1>libpipeline - pipeline manipulation library</h1>
+
+<h2>Summary</h2>
+
+<p>libpipeline is a C library for manipulating pipelines of subprocesses in
+a flexible and convenient way.  It is available in at least the following
+operating systems:</p>
+
+<ul>
+ <li><a href="http://www.archlinux.org/">Arch Linux</a></li>
+ <li><a href="http://www.debian.org/">Debian</a> (as of wheezy)</li>
+ <li><a href="http://www.dragora.org/">Dragora GNU/Linux</a></li>
+ <li><a href="http://fedoraproject.org/">Fedora</a> (as of 16)</li>
+ <li><a href="http://www.gentoo.org/">Gentoo</a></li>
+ <li><a href="http://www.ubuntu.com/">Ubuntu</a> (as of 11.04)</li>
+</ul>
+
+<p>For macOS, you can install libpipeline using
+<a href="https://brew.sh/">Homebrew</a> with
+<a href="https://github.com/Alhadis/homebrew-troff">this "tap"</a>.</p>
+
+<h2>Description</h2>
+
+<p>When I took over <a href="https://nongnu.org/man-db">man-db</a> in 2001,
+one of the major problems that became evident after maintaining it for a
+while was the way it handled subprocesses.  The nature of man and friends
+means that it spends a lot of time calling sequences of programs such as
+<code>zsoelim &lt; input-file | tbl | nroff -mandoc -Tutf8</code>.  Back then,
+it was using C library facilities such as <code>system</code> and
+<code>popen</code> for all this, and I had to deal with several bugs where
+those functions were being called with untrusted input as arguments without
+properly escaping metacharacters.  Of course it was possible to chase around
+every such call inserting appropriate escaping functions, but this was
+always bound to be error-prone and one of the tasks that rapidly became
+important to me was arranging to start subprocesses in a way that was
+fundamentally immune to this kind of bug.</p>
+
+<p>In higher-level languages, there are usually standard constructs which
+are safer than just passing a command line to the shell.  For example, in
+Perl you can use <code>system([$command, $arg1, $arg2, ...])</code> to
+invoke a program with arguments without the interference of the shell, and
+<code>perlipc(1)</code> describes various facilities for connecting them
+together.  In Python, the
+<a href="http://docs.python.org/library/subprocess.html">subprocess</a>
+module allows you to create pipelines easily and safely (as long as you
+remember the
+<a href="http://www.chiark.greenend.org.uk/ucgi/~cjwatson/blosxom/2009-07-02-python-sigpipe.html">SIGPIPE
+gotcha</a>).  C has the <code>fork</code> and <code>execve</code>
+primitives, but assembling these to construct full-blown pipelines correctly
+is difficult and error-prone, so many programmers don't bother and use the
+simple but unsafe library facilities instead.</p>
+
+<p>libpipeline solves this problem.  In the following examples, function
+names starting with <code>pipecmd_</code> or <code>pipeline_</code> are real
+functions in the library, while any other function names are pseudocode.</p>
+
+<p>Constructing the simplified example pipeline from my first paragraph
+using this library looks like this:</p>
+
+<pre>
+pipeline *p;
+int status;
+
+p = pipeline_new ();
+pipeline_want_infile (p, "input-file");
+pipeline_command_args (p, "zsoelim", NULL);
+pipeline_command_args (p, "tbl", NULL);
+pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", NULL);
+status = pipeline_run (p);
+</pre>
+
+<p>You might want to construct a command more dynamically:</p>
+
+<pre>
+pipecmd *manconv = pipecmd_new_args ("manconv", "-f", from_code,
+                                     "-t", "UTF-8", NULL);
+if (quiet)
+	pipecmd_arg (manconv, "-q");
+pipeline_command (p, manconv);
+</pre>
+
+<p>Perhaps you want an environment variable set only while running a certain
+command:</p>
+
+<pre>
+pipecmd *less = pipecmd_new ("less");
+pipecmd_setenv (less, "LESSCHARSET", lesscharset);
+</pre>
+
+<p>You might find yourself needing to pass the output of one pipeline to
+several other pipelines, in a "tee" arrangement:</p>
+
+<pre>
+pipeline *source, *sink1, *sink2;
+
+source = make_source ();
+sink1 = make_sink1 ();
+sink2 = make_sink2 ();
+pipeline_connect (source, sink1, sink2, NULL);
+/* Pump data among these pipelines until there's nothing left. */
+pipeline_pump (source, sink1, sink2, NULL);
+pipeline_free (sink2);
+pipeline_free (sink1);
+pipeline_free (source);
+</pre>
+
+<p>Maybe one of your commands is actually an in-process function, rather
+than an external program:</p>
+
+<pre>
+pipecmd *inproc = pipecmd_new_function ("in-process", &amp;func, NULL, NULL);
+pipeline_command (p, inproc);
+</pre>
+
+<p>Sometimes your program needs to consume the output of a pipeline, rather
+than sending it all to some other subprocess:</p>
+
+<pre>
+pipeline *p = make_pipeline ();
+const char *line;
+
+pipeline_want_out (p, -1);
+pipeline_start (p);
+line = pipeline_peekline (p);
+if (!strstr (line, "coding: UTF-8"))
+	printf ("Unicode text follows:\n");
+while (line = pipeline_readline (p))
+	printf ("  %s", line);
+pipeline_free (p);
+</pre>
+
+<p>See the
+<a href="https://savannah.nongnu.org/projects/libpipeline">Savannah
+project</a> or the
+<a href="https://gitlab.com/libpipeline/libpipeline">GitLab repository</a>
+for more information.  The latest release is 1.5.3, made on 2020-08-13.</p>
+
+<p>The libpipeline(3) manual page is available in
+<a href="libpipeline.3.html">HTML</a> and
+<a href="libpipeline.3.txt">text</a>.</p>
+
+<h2>Installation</h2>
+
+<p>If your distribution includes a package of libpipeline, it's usually best
+to install that.  However, if you need to install it starting from source
+code, then you will need these separate packages installed before
+configuring libpipeline in order to run its test suite:</p>
+
+<ul>
+ <li><a href="http://www.freedesktop.org/wiki/Software/pkg-config">pkg-config</a></li>
+ <li><a href="http://check.sourceforge.net/">check</a></li>
+</ul>
+
+<hr />
+
+<address>
+This Web page is created and maintained by
+<a href="mailto:cjwatson@debian.org">Colin Watson</a>.
+<br />
+Last modified: $Date: 2020/11/25 23:31:33 $
+</address>
+
+</body>
+</html>
