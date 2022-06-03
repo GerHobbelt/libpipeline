@@ -1,6 +1,6 @@
 # libpipeline, a pipeline manipulation library
 
-Git repository: https://gitlab.com/cjwatson/libpipeline
+Git repository: https://gitlab.com/libpipeline/libpipeline
 
 libpipeline is a C library for setting up and running pipelines of
 processes, without needing to involve shell command-line parsing which is
@@ -230,6 +230,6 @@ design review, and Kees Cook and Matthias Klose for helpful conversations.
 ## Bug reporting
 
 You can [report bugs on
-GitLab](https://gitlab.com/cjwatson/libpipeline/-/issues), or see [bugs from
-before the migration to
+GitLab](https://gitlab.com/libpipeline/libpipeline/-/issues), or see [bugs
+from before the migration to
 GitLab](https://savannah.nongnu.org/bugs/?group=libpipeline).
