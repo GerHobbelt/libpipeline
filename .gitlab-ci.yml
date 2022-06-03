@@ -33,6 +33,7 @@ pages:
   script:
     - rm -rf public
     - cp -a web public
+    - sed -i "s/@DATE@/$(date -I)/" public/index.html
     - mandoc -T ascii man/libpipeline.3 | col -b >public/libpipeline.3.txt
     - mandoc -T html man/libpipeline.3 >public/libpipeline.3.html
   artifacts:
