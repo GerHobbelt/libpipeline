@@ -9,7 +9,8 @@ laboriously construct pipelines using lower-level primitives such as fork(2)
 and execve(2).
 
 Full programmers' documentation may be found using `man libpipeline`, and
-the [project homepage](https://nongnu.org/libpipeline/) has more background.
+the [project homepage](https://libpipeline.gitlab.io/libpipeline/) has more
+background.
 
 ## Installation
 

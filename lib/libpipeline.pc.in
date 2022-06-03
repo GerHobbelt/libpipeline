@@ -25,6 +25,6 @@ includedir=@includedir@
 Name: @PACKAGE_NAME@
 Description: Pipeline manipulation library
 Version: @PACKAGE_VERSION@
-URL: https://nongnu.org/libpipeline/
+URL: https://libpipeline.gitlab.io/libpipeline/
 Libs: -L${libdir} -lpipeline
 Cflags: -I${includedir}
