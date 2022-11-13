@@ -1,5 +1,5 @@
-libpipeline 1.5.7
-=================
+libpipeline 1.5.7 (13 November 2022)
+====================================
 
  * Add notes to libpipeline(3) of when functions were added.
  * Transferred Git repository to https://gitlab.com/libpipeline/libpipeline.
