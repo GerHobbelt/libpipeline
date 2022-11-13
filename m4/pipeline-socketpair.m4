@@ -1,4 +1,4 @@
-# pipeline-socketpair.m4 serial 2
+# pipeline-socketpair.m4 serial 3
 dnl
 dnl Check if the socketpair(2) system call can be used
 dnl and should be used as a fast replacement for pipe(2)
@@ -28,7 +28,7 @@ static void sigpipe(int sig)
 	_exit(0);
 }
 
-int main()
+int main(void)
 {
 	const char test[] = "May use socketpair(2) instead of pipe(2)\n";
 	char buf[256];
@@ -88,7 +88,7 @@ AC_DEFUN([PIPELINE_SOCKETPAIR_MODE],
 #	define SHUT_WR	1
 #endif
 
-int main()
+int main(void)
 {
 	int sfd[2];
 	struct stat st[2];
