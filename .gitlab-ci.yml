@@ -53,7 +53,7 @@ bootstrap:
     - rm -rf bootstrapped
     - mkdir bootstrapped
     - tar -cf - --exclude=bootstrapped . | tar -C bootstrapped -xf -
-    - (cd bootstrapped && GNULIB_URL=../gnulib-src ./bootstrap)
+    - (cd bootstrapped && GNULIB_URL=../gnulib-src ./bootstrap --copy)
   cache:
     paths:
       - gnulib-src/
