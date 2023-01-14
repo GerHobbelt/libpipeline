@@ -1,3 +1,8 @@
+libpipeline 1.5.8
+=================
+
+ * Upgrade to Gnulib `stable-202301`.
+
 libpipeline 1.5.7 (13 November 2022)
 ====================================
 
