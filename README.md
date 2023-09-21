@@ -21,7 +21,8 @@ order to run its test suite:
  * [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config)
  * [check >= 0.9.10](https://libcheck.github.io/check/)
 
-See the INSTALL file for general installation instructions.
+See the INSTALL file for general installation instructions.  (If you cloned
+libpipeline from git, then run `./bootstrap` to create this file.)
 
 ## Using the library
 
