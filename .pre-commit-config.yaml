@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     -   id: check-added-large-files
     -   id: check-yaml
@@ -12,6 +12,6 @@ repos:
     -   id: trailing-whitespace
         exclude: ChangeLog-2013
 -   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v15.0.7
+    rev: v17.0.6
     hooks:
     -   id: clang-format

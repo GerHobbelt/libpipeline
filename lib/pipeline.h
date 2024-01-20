@@ -36,7 +36,7 @@ extern "C" {
 /* GCC version checking borrowed from glibc. */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
 #  define PIPELINE_GNUC_PREREQ(maj, min)                                      \
-    ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+	  ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
 #else
 #  define PIPELINE_GNUC_PREREQ(maj, min) 0
 #endif
@@ -44,7 +44,7 @@ extern "C" {
 /* Does this compiler support format string checking? */
 #if PIPELINE_GNUC_PREREQ(2, 0)
 #  define PIPELINE_ATTR_FORMAT_PRINTF(a, b)                                   \
-    __attribute__ ((__format__ (__printf__, a, b)))
+	  __attribute__ ((__format__ (__printf__, a, b)))
 #else
 #  define PIPELINE_ATTR_FORMAT_PRINTF(a, b)
 #endif
@@ -70,7 +70,7 @@ extern "C" {
 /* Does this compiler support unused result checking? */
 #if PIPELINE_GNUC_PREREQ(3, 4)
 #  define PIPELINE_ATTR_WARN_UNUSED_RESULT                                    \
-    __attribute__ ((__warn_unused_result__))
+	  __attribute__ ((__warn_unused_result__))
 #else
 #  define PIPELINE_ATTR_WARN_UNUSED_RESULT
 #endif
