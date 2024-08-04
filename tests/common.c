@@ -43,7 +43,7 @@ void temp_dir_setup (void)
 void temp_dir_teardown (void)
 {
 	pipeline_run (
-	        pipeline_new_command_args ("rm", "-rf", temp_dir, (void *) 0));
+	        pipeline_new_command_args ("rm", "-rf", temp_dir, nullptr));
 	free (temp_dir);
 	temp_dir = NULL;
 }

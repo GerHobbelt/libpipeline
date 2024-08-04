@@ -41,9 +41,9 @@ START_TEST (test_basic_status)
 {
 	pipeline *p;
 
-	p = pipeline_new_command_args ("true", (void *) 0);
+	p = pipeline_new_command_args ("true", nullptr);
 	ck_assert_msg (pipeline_run (p) == 0, "true did not return 0");
-	p = pipeline_new_command_args ("false", (void *) 0);
+	p = pipeline_new_command_args ("false", nullptr);
 	ck_assert_msg (pipeline_run (p) != 0, "false returned 0");
 }
 END_TEST
@@ -53,7 +53,7 @@ START_TEST (test_basic_args)
 	pipeline *p;
 	const char *line;
 
-	p = pipeline_new_command_args ("echo", "foo", (void *) 0);
+	p = pipeline_new_command_args ("echo", "foo", nullptr);
 	pipeline_want_out (p, -1);
 	ck_assert_msg (pipecmd_get_nargs (pipeline_get_command (p, 0)) == 2,
 	               "Number of arguments != 2");
@@ -65,7 +65,7 @@ START_TEST (test_basic_args)
 	ck_assert_msg (pipeline_wait (p) == 0, "'echo foo' did not return 0");
 	pipeline_free (p);
 
-	p = pipeline_new_command_args ("echo", "foo", "bar", (void *) 0);
+	p = pipeline_new_command_args ("echo", "foo", "bar", nullptr);
 	pipeline_want_out (p, -1);
 	ck_assert_msg (pipecmd_get_nargs (pipeline_get_command (p, 0)) == 3,
 	               "Number of arguments != 3");
@@ -86,8 +86,8 @@ START_TEST (test_basic_pipeline)
 	const char *line;
 
 	p = pipeline_new ();
-	pipeline_command_args (p, "echo", "foo", (void *) 0);
-	pipeline_command_args (p, "sed", "-e", "s/foo/bar/", (void *) 0);
+	pipeline_command_args (p, "echo", "foo", nullptr);
+	pipeline_command_args (p, "sed", "-e", "s/foo/bar/", nullptr);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
 	line = pipeline_readline (p);
@@ -109,9 +109,9 @@ START_TEST (test_basic_wait_all)
 	int n_statuses;
 
 	p = pipeline_new ();
-	pipeline_command_args (p, SHELL, "-c", "exit 2", (void *) 0);
-	pipeline_command_args (p, SHELL, "-c", "exit 3", (void *) 0);
-	pipeline_command_args (p, "true", (void *) 0);
+	pipeline_command_args (p, SHELL, "-c", "exit 2", nullptr);
+	pipeline_command_args (p, SHELL, "-c", "exit 3", nullptr);
+	pipeline_command_args (p, "true", nullptr);
 	pipeline_start (p);
 	ck_assert_int_eq (pipeline_wait_all (p, &statuses, &n_statuses), 127);
 	ck_assert_int_eq (n_statuses, 3);
@@ -127,7 +127,7 @@ START_TEST (test_basic_setenv)
 {
 	pipeline *p;
 
-	p = pipeline_new_command_args (SHELL, "-c", "exit $TEST1", (void *) 0);
+	p = pipeline_new_command_args (SHELL, "-c", "exit $TEST1", nullptr);
 	pipecmd_setenv (pipeline_get_command (p, 0), "TEST1", "10");
 	ck_assert_int_eq (pipeline_run (p), 10);
 }
@@ -139,14 +139,14 @@ START_TEST (test_basic_unsetenv)
 
 	setenv ("TEST2", "foo", 1);
 
-	p = pipeline_new_command_args (SHELL, "-c", "echo $TEST2", (void *) 0);
+	p = pipeline_new_command_args (SHELL, "-c", "echo $TEST2", nullptr);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
 	ck_assert_str_eq (pipeline_readline (p), "foo\n");
 	pipeline_wait (p);
 	pipeline_free (p);
 
-	p = pipeline_new_command_args (SHELL, "-c", "echo $TEST2", (void *) 0);
+	p = pipeline_new_command_args (SHELL, "-c", "echo $TEST2", nullptr);
 	pipecmd_unsetenv (pipeline_get_command (p, 0), "TEST2");
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
@@ -163,7 +163,7 @@ START_TEST (test_basic_clearenv)
 	setenv ("TEST3", "foo", 1);
 
 	p = pipeline_new_command_args (SHELL, "-c", "echo $TEST3; echo $TEST4",
-	                               (void *) 0);
+	                               nullptr);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
 	ck_assert_str_eq (pipeline_readline (p), "foo\n");
@@ -201,7 +201,7 @@ START_TEST (test_basic_chdir)
 	char *line, *end;
 	char *child_base, *expected_base;
 
-	p = pipeline_new_command_args ("pwd", (void *) 0);
+	p = pipeline_new_command_args ("pwd", nullptr);
 	pipecmd_chdir (pipeline_get_command (p, 0), temp_dir);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
@@ -230,7 +230,7 @@ START_TEST (test_basic_fchdir)
 	char *line, *end;
 	char *child_base, *expected_base;
 
-	p = pipeline_new_command_args ("pwd", (void *) 0);
+	p = pipeline_new_command_args ("pwd", nullptr);
 	temp_dir_fd = open (temp_dir, O_RDONLY | O_DIRECTORY);
 	ck_assert_int_ge (temp_dir_fd, 0);
 	pipecmd_fchdir (pipeline_get_command (p, 0), temp_dir_fd);
@@ -266,7 +266,7 @@ START_TEST (test_basic_pre_exec)
 {
 	pipeline *p;
 
-	p = pipeline_new_command_args (SHELL, "-c", "exit $TEST1", (void *) 0);
+	p = pipeline_new_command_args (SHELL, "-c", "exit $TEST1", nullptr);
 	pipecmd_pre_exec (pipeline_get_command (p, 0), pre_exec, NULL, NULL);
 	ck_assert_msg (pipeline_run (p) == 10, "TEST1 not set properly");
 }
@@ -278,12 +278,12 @@ START_TEST (test_basic_sequence)
 	pipecmd *cmd1, *cmd2, *cmd3, *seq;
 
 	p = pipeline_new ();
-	cmd1 = pipecmd_new_args ("echo", "foo", (void *) 0);
-	cmd2 = pipecmd_new_args ("echo", "bar", (void *) 0);
-	cmd3 = pipecmd_new_args ("echo", "baz", (void *) 0);
-	seq = pipecmd_new_sequence ("echo*3", cmd1, cmd2, cmd3, (void *) 0);
+	cmd1 = pipecmd_new_args ("echo", "foo", nullptr);
+	cmd2 = pipecmd_new_args ("echo", "bar", nullptr);
+	cmd3 = pipecmd_new_args ("echo", "baz", nullptr);
+	seq = pipecmd_new_sequence ("echo*3", cmd1, cmd2, cmd3, nullptr);
 	pipeline_command (p, seq);
-	pipeline_command_args (p, "xargs", (void *) 0);
+	pipeline_command_args (p, "xargs", nullptr);
 	pipeline_want_out (p, -1);
 	pipeline_start (p);
 	ck_assert_str_eq (pipeline_readline (p), "foo bar baz\n");

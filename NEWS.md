@@ -3,6 +3,7 @@ libpipeline 1.5.8
 
  * Upgrade to Gnulib `stable-202407`.  Building libpipeline now requires
    Automake >= 1.14.
+ * Use C23-style `nullptr`.
 
 libpipeline 1.5.7 (13 November 2022)
 ====================================

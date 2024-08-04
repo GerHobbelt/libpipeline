@@ -214,7 +214,7 @@ static char *argstr_get_word (const char **argstr)
 		/* Copy any accumulated literal characters. */
 		if (litstart < *argstr) {
 			char *tmp = xstrndup (litstart, *argstr - litstart);
-			out = appendstr (out, tmp, (void *) 0);
+			out = appendstr (out, tmp, nullptr);
 			free (tmp);
 		}
 
@@ -248,7 +248,7 @@ static char *argstr_get_word (const char **argstr)
 					return NULL;
 				}
 				backslashed[1] = '\0';
-				out = appendstr (out, backslashed, (void *) 0);
+				out = appendstr (out, backslashed, nullptr);
 				litstart = ++*argstr;
 				break;
 
@@ -266,7 +266,7 @@ static char *argstr_get_word (const char **argstr)
 	/* Copy any accumulated literal characters. */
 	if (litstart < *argstr) {
 		char *tmp = xstrndup (litstart, *argstr - litstart);
-		out = appendstr (out, tmp, (void *) 0);
+		out = appendstr (out, tmp, nullptr);
 		free (tmp);
 	}
 
@@ -712,59 +712,58 @@ char *pipecmd_tostring (pipecmd *cmd)
 	if (cmd->cwd_fd >= 0) {
 		char *cwd_fd_str = xasprintf ("%d", cmd->cwd_fd);
 		out = appendstr (out, "(cd <fd ", cwd_fd_str, "> && ",
-		                 (void *) 0);
+		                 nullptr);
 		free (cwd_fd_str);
 	} else if (cmd->cwd)
-		out = appendstr (out, "(cd ", cmd->cwd, " && ", (void *) 0);
+		out = appendstr (out, "(cd ", cmd->cwd, " && ", nullptr);
 
 	for (i = 0; i < cmd->nenv; ++i) {
 		if (cmd->env[i].name)
 			out = appendstr (out, cmd->env[i].name, "=",
 			                 cmd->env[i].value ? cmd->env[i].value
 			                                   : "<unset>",
-			                 " ", (void *) 0);
+			                 " ", nullptr);
 		else
-			out = appendstr (out, "env -i ", (void *) 0);
+			out = appendstr (out, "env -i ", nullptr);
 	}
 
 	switch (cmd->tag) {
 		case PIPECMD_PROCESS: {
 			struct pipecmd_process *cmdp = &cmd->u.process;
 
-			out = appendstr (out, cmd->name, (void *) 0);
+			out = appendstr (out, cmd->name, nullptr);
 			for (i = 1; i < cmdp->argc; ++i)
 				/* TODO: escape_shell()? */
 				out = appendstr (out, " ", cmdp->argv[i],
-				                 (void *) 0);
+				                 nullptr);
 
 			break;
 		}
 
 		case PIPECMD_FUNCTION:
-			out = appendstr (out, cmd->name, (void *) 0);
+			out = appendstr (out, cmd->name, nullptr);
 			break;
 
 		case PIPECMD_SEQUENCE: {
 			struct pipecmd_sequence *cmds = &cmd->u.sequence;
 
-			out = appendstr (out, "(", (void *) 0);
+			out = appendstr (out, "(", nullptr);
 			for (i = 0; i < cmds->ncommands; ++i) {
 				char *subout =
 				        pipecmd_tostring (cmds->commands[i]);
-				out = appendstr (out, subout, (void *) 0);
+				out = appendstr (out, subout, nullptr);
 				free (subout);
 				if (i < cmds->ncommands - 1)
-					out = appendstr (out, " && ",
-					                 (void *) 0);
+					out = appendstr (out, " && ", nullptr);
 			}
-			out = appendstr (out, ")", (void *) 0);
+			out = appendstr (out, ")", nullptr);
 
 			break;
 		}
 	}
 
 	if (cmd->cwd_fd >= 0 || cmd->cwd)
-		out = appendstr (out, ")", (void *) 0);
+		out = appendstr (out, ")", nullptr);
 
 	return out;
 }
@@ -1284,10 +1283,10 @@ char *pipeline_tostring (pipeline *p)
 
 	for (i = 0; i < p->ncommands; ++i) {
 		char *cmdout = pipecmd_tostring (p->commands[i]);
-		out = appendstr (out, cmdout, (void *) 0);
+		out = appendstr (out, cmdout, nullptr);
 		free (cmdout);
 		if (i < p->ncommands - 1)
-			out = appendstr (out, " | ", (void *) 0);
+			out = appendstr (out, " | ", nullptr);
 	}
 
 	return out;
