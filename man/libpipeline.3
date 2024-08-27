@@ -81,7 +81,9 @@ Construct a new command representing execution of a program called
 .Va name
 with arguments.
 Terminate arguments with
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 .Pp
 .It Ft "pipecmd *" Ns Fn pipecmd_new_argstr "const char *argstr"
 .Pp
@@ -130,7 +132,9 @@ Construct a new command that itself runs a sequence of commands, supplied as
 arguments following
 .Va name
 and terminated by
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 The commands will be executed in forked children; if any exits non-zero then
 it will terminate the sequence, as with "&&" in shell.
 .Pp
@@ -161,7 +165,9 @@ Convenience functions wrapping
 .Fn pipecmd_arg
 to add multiple arguments at once.
 Terminate arguments with
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 .Pp
 .It Ft void Fn pipecmd_argstr "pipecmd *cmd" "const char *argstr"
 .Pp
@@ -329,7 +335,9 @@ and
 .Fn pipeline_command .
 Construct a new pipeline consisting of the given list of commands.
 Terminate commands with
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 .Pp
 .It Xo Ft "pipeline *" Ns
 .Fn pipeline_new_command_argv "const char *name" "va_list argv"
@@ -370,7 +378,9 @@ In any event, calls
 .Fn pipeline_want_in sink -1
 on all sinks, none of which are allowed to be started.
 Terminate arguments with
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 .Pp
 This is an application-level connection; data may be intercepted between the
 pipelines by the program before calling
@@ -410,7 +420,9 @@ Convenience functions wrapping
 .Fn pipeline_command
 to add multiple commands at once.
 Terminate arguments with
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 .Pp
 .It Ft void Fn pipeline_want_in "pipeline *p" "int fd"
 .It Ft void Fn pipeline_want_out "pipeline *p" "int fd"
@@ -623,7 +635,9 @@ is also supplied.
 Automatically starts all pipelines if they are not already started, but does
 not wait for them.
 Terminate arguments with
-.Li NULL .
+.Li nullptr
+(before C23:
+.Li (void *) 0 ) .
 .El
 .Ss Functions to read output from pipelines
 In general, output is returned as a pointer into a buffer owned by the
@@ -760,6 +774,11 @@ or
 are real
 .Nm
 functions, while any other function names are pseudocode.
+These examples use the C23-style
+.Lk https://en.cppreference.com/w/c/language/nullptr nullptr
+keyword to terminate variadic argument lists; on earlier versions of C, use
+.Li (void *) 0
+instead.
 .Pp
 The simplest case is simple.
 To run a single command, such as
@@ -767,7 +786,7 @@ To run a single command, such as
 .Pa source
 .Pa dest :
 .Bd -literal -offset indent
-pipeline *p = pipeline_new_command_args ("mv", source, dest, NULL);
+pipeline *p = pipeline_new_command_args ("mv", source, dest, nullptr);
 int status = pipeline_run (p);
 .Ed
 .Pp
@@ -783,16 +802,16 @@ int status;
 
 p = pipeline_new ();
 pipeline_want_infile (p, "input-file");
-pipeline_command_args (p, "zsoelim", NULL);
-pipeline_command_args (p, "tbl", NULL);
-pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", NULL);
+pipeline_command_args (p, "zsoelim", nullptr);
+pipeline_command_args (p, "tbl", nullptr);
+pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", nullptr);
 status = pipeline_run (p);
 .Ed
 .Pp
 You might want to construct a command more dynamically:
 .Bd -literal -offset indent
 pipecmd *manconv = pipecmd_new_args ("manconv", "-f", from_code,
-                                     "-t", "UTF-8", NULL);
+                                     "-t", "UTF-8", nullptr);
 if (quiet)
         pipecmd_arg (manconv, "-q");
 pipeline_command (p, manconv);
@@ -815,9 +834,9 @@ pipeline *source, *sink1, *sink2;
 source = make_source ();
 sink1 = make_sink1 ();
 sink2 = make_sink2 ();
-pipeline_connect (source, sink1, sink2, NULL);
+pipeline_connect (source, sink1, sink2, nullptr);
 /* Pump data among these pipelines until there's nothing left. */
-pipeline_pump (source, sink1, sink2, NULL);
+pipeline_pump (source, sink1, sink2, nullptr);
 pipeline_free (sink2);
 pipeline_free (sink1);
 pipeline_free (source);

@@ -64,7 +64,10 @@ facilities instead.
 
 libpipeline solves this problem.  In the following examples, function names
 starting with `pipecmd_` or `pipeline_` are real functions in the library,
-while any other function names are pseudocode.
+while any other function names are pseudocode.  These examples use the
+C23-style [nullptr](https://en.cppreference.com/w/c/language/nullptr)
+keyword to terminate variadic argument lists; on earlier versions of C, use
+`(void *) 0` instead.
 
 Constructing the simplified example pipeline from the first paragraph above
 using this library looks like this:
@@ -75,9 +78,9 @@ int status;
 
 p = pipeline_new ();
 pipeline_want_infile (p, "input-file");
-pipeline_command_args (p, "zsoelim", NULL);
-pipeline_command_args (p, "tbl", NULL);
-pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", NULL);
+pipeline_command_args (p, "zsoelim", nullptr);
+pipeline_command_args (p, "tbl", nullptr);
+pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", nullptr);
 status = pipeline_run (p);
 ```
 
@@ -85,7 +88,7 @@ You might want to construct a command more dynamically:
 
 ```c
 pipecmd *manconv = pipecmd_new_args ("manconv", "-f", from_code,
-                                     "-t", "UTF-8", NULL);
+                                     "-t", "UTF-8", nullptr);
 if (quiet)
 	pipecmd_arg (manconv, "-q");
 pipeline_command (p, manconv);
@@ -108,9 +111,9 @@ pipeline *source, *sink1, *sink2;
 source = make_source ();
 sink1 = make_sink1 ();
 sink2 = make_sink2 ();
-pipeline_connect (source, sink1, sink2, NULL);
+pipeline_connect (source, sink1, sink2, nullptr);
 /* Pump data among these pipelines until there's nothing left. */
-pipeline_pump (source, sink1, sink2, NULL);
+pipeline_pump (source, sink1, sink2, nullptr);
 pipeline_free (sink2);
 pipeline_free (sink1);
 pipeline_free (source);
@@ -170,8 +173,8 @@ reasonable start.
 When building with GCC, you should use at least the `-Wformat` option
 (included in `-Wall`) to ensure that the 'sentinel' function attribute is
 checked.  This means that your program will produce a warning if it calls
-any of the several libpipeline functions that require a trailing NULL
-without passing that trailing NULL.
+any of the several libpipeline functions that require a trailing null
+pointer without passing that trailing null pointer.
 
 ## Copyright and licensing
 

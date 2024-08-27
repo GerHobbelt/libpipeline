@@ -65,7 +65,11 @@ simple but unsafe library facilities instead.</p>
 
 <p>libpipeline solves this problem.  In the following examples, function
 names starting with <code>pipecmd_</code> or <code>pipeline_</code> are real
-functions in the library, while any other function names are pseudocode.</p>
+functions in the library, while any other function names are pseudocode.
+These examples use the C23-style
+<a href="https://en.cppreference.com/w/c/language/nullptr">nullptr</a>
+keyword to terminate variadic argument lists; on earlier versions of C, use
+<code>(void *) 0</code> instead.</p>
 
 <p>Constructing the simplified example pipeline from my first paragraph
 using this library looks like this:</p>
@@ -76,9 +80,9 @@ int status;
 
 p = pipeline_new ();
 pipeline_want_infile (p, "input-file");
-pipeline_command_args (p, "zsoelim", NULL);
-pipeline_command_args (p, "tbl", NULL);
-pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", NULL);
+pipeline_command_args (p, "zsoelim", nullptr);
+pipeline_command_args (p, "tbl", nullptr);
+pipeline_command_args (p, "nroff", "-mandoc", "-Tutf8", nullptr);
 status = pipeline_run (p);
 </pre>
 
@@ -86,7 +90,7 @@ status = pipeline_run (p);
 
 <pre>
 pipecmd *manconv = pipecmd_new_args ("manconv", "-f", from_code,
-                                     "-t", "UTF-8", NULL);
+                                     "-t", "UTF-8", nullptr);
 if (quiet)
 	pipecmd_arg (manconv, "-q");
 pipeline_command (p, manconv);
@@ -109,9 +113,9 @@ pipeline *source, *sink1, *sink2;
 source = make_source ();
 sink1 = make_sink1 ();
 sink2 = make_sink2 ();
-pipeline_connect (source, sink1, sink2, NULL);
+pipeline_connect (source, sink1, sink2, nullptr);
 /* Pump data among these pipelines until there's nothing left. */
-pipeline_pump (source, sink1, sink2, NULL);
+pipeline_pump (source, sink1, sink2, nullptr);
 pipeline_free (sink2);
 pipeline_free (sink1);
 pipeline_free (source);
