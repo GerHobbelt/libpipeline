@@ -1,5 +1,5 @@
-libpipeline 1.5.8
-=================
+libpipeline 1.5.8 (27 August 2024)
+==================================
 
  * Upgrade to Gnulib `stable-202407`.  Building libpipeline now requires
    Automake >= 1.14.
