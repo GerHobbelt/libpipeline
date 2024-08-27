@@ -26,18 +26,18 @@ libpipeline from git, then run `./bootstrap` to create this file.)
 
 ## Using the library
 
-When the author took over [man-db](https://nongnu.org/man-db) in 2001, one
-of the major problems that became evident after maintaining it for a while
-was the way it handled subprocesses.  The nature of man and friends means
-that it spends a lot of time calling sequences of programs such as `zsoelim
-< input-file | tbl | nroff -mandoc -Tutf8`.  Back then, it was using C
-library facilities such as `system` and `popen` for all this, and there were
-several bugs where those functions were being called with untrusted input as
-arguments without properly escaping metacharacters.  Of course it was
-possible to chase around every such call inserting appropriate escaping
-functions, but this was always bound to be error-prone and one of the tasks
-that rapidly became important was arranging to start subprocesses in a way
-that was fundamentally immune to this kind of bug.
+When the author took over [man-db](https://man-db.gitlab.io/man-db/) in
+2001, one of the major problems that became evident after maintaining it for
+a while was the way it handled subprocesses.  The nature of man and friends
+means that it spends a lot of time calling sequences of programs such as
+`zsoelim < input-file | tbl | nroff -mandoc -Tutf8`.  Back then, it was
+using C library facilities such as `system` and `popen` for all this, and
+there were several bugs where those functions were being called with
+untrusted input as arguments without properly escaping metacharacters.  Of
+course it was possible to chase around every such call inserting appropriate
+escaping functions, but this was always bound to be error-prone and one of
+the tasks that rapidly became important was arranging to start subprocesses
+in a way that was fundamentally immune to this kind of bug.
 
 In higher-level languages, there are usually standard constructs which are
 safer than just passing a command line to the shell.  For example, in Perl
